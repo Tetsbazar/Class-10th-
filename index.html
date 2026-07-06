@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bazar - Class 10 Main Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+
+    <style>
+        /* ================= COLOR SCHEME & VARIABLES ================= */
+        :root {
+            --primary: #1a7a4a;
+            --primary-hover: #2aad68;
+            --accent: #f9a825;
+            --bg-main: #f0faf4;
+            --bg-card: #ffffff;
+            --text-main: #1c2e24;
+            --text-meta: #5a7a66;
+            --border-color: #c5dccb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tiro Bangla', serif; background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; }
+        .en-font { font-family: 'Syne', sans-serif; }
+
+        /* ================= TOP BAR ================= */
+        .top-bar { background-color: var(--primary); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(26,122,74,0.15); }
+        .logo { font-size: 1.8rem; font-weight: 800; cursor: pointer; }
+        .logo span { color: var(--accent); }
+        .admin-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Syne', sans-serif; }
+        .admin-btn:hover { background: var(--accent); color: var(--text-main); border-color: var(--accent); }
+
+        /* ================= MAIN CONTAINER ================= */
+        .main-container { max-width: 1100px; margin: 3rem auto; padding: 0 1.5rem; }
+        .header-text { text-align: center; margin-bottom: 3rem; }
+        .header-text h1 { font-size: 2.2rem; color: var(--primary); margin-bottom: 10px; }
+        .header-text p { font-size: 1.1rem; color: var(--text-meta); font-weight: bold; }
+
+        /* ================= SUBJECT GRID ================= */
+        .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+
+        /* Subject Card */
+        .subject-card { background: var(--bg-card); border-radius: 12px; border: 1.5px solid var(--border-color); padding: 25px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .subject-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 12px 25px rgba(26,122,74,0.1); }
+
+        .subject-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px dashed var(--border-color); }
+        .subject-icon { font-size: 2.5rem; background: var(--bg-main); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid var(--border-color); }
+        .subject-title { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+
+        /* Chapter List */
+        .chapter-list { display: flex; flex-direction: column; gap: 10px; }
+        .chapter-link { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: var(--bg-main); border-radius: 8px; text-decoration: none; color: var(--text-main); font-weight: 600; transition: 0.2s; border: 1.5px solid transparent; }
+        .chapter-link:hover { background: white; border-color: var(--primary); color: var(--primary); transform: translateX(5px); }
+        .chapter-meta { font-size: 0.85rem; color: var(--text-meta); font-family: 'Syne', sans-serif; background: #e8f4ec; padding: 3px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #c5dccb;}
+
+        /* ================= ADMIN MODAL ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-box { background: white; padding: 2.5rem; border-radius: 14px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Syne', sans-serif; box-sizing: border-box; }
+
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Tiro Bangla', serif; font-size: 1rem; width: 100%; margin-top: 10px; transition: 0.2s; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="logo en-font">Test<span>Bazar</span></div>
+        <button class="admin-btn" onclick="openAdmin()">🔒 Admin Access</button>
+    </header>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div class="modal-overlay hidden" id="adminModal">
+        <div class="modal-box">
+            <h2 style="color: var(--primary); margin-top:0;">Admin Panel</h2>
+            <p style="color: var(--text-meta);">Admin Panel-এ প্রবেশ করতে password দিন</p>
+            <input type="password" id="adminPassword" placeholder="Admin Password">
+            <div id="adminError" class="hidden" style="color: #dc3545; margin: 10px 0; font-weight:bold;">ভুল পাসওয়ার্ড!</div>
+            <div style="display: flex; gap: 10px; margin-top:15px;">
+                <button class="btn-primary" onclick="loginAdmin()">প্রবেশ করুন</button>
+                <button class="btn-primary" style="background: #6c757d;" onclick="closeAdmin()">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="main-container">
+        <div class="header-text">
+            <h1>দশম শ্রেণি (Class 10) মক টেস্ট ড্যাশবোর্ড</h1>
+            <p>আপনার পছন্দের বিষয় নির্বাচন করে চ্যাপ্টার অনুযায়ী মক টেস্ট শুরু করুন</p>
+        </div>
+
+        <div class="subject-grid">
+
+            <!-- BENGALI (বাংলা) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">📖</div>
+                    <div class="subject-title">বাংলা</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="Bengali_Class10_Ch1.html" class="chapter-link">
+                        <span>১. জ্ঞানচক্ষু (গল্প)</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                    <a href="Bengali_Class10_Ch2.html" class="chapter-link">
+                        <span>২. অসুখী একজন</span>
+                        <span class="chapter-meta">5 Sets</span>
+                    </a>
+                    <a href="Bengali_Class10_Ch3.html" class="chapter-link">
+                        <span>৩. আয় আরো বেঁধে বেঁধে থাকি</span>
+                        <span class="chapter-meta">3 Sets</span>
+                    </a>
+                    <a href="Bengali_Class10_Grammar.html" class="chapter-link">
+                        <span>৪. বাংলা ব্যাকরণ</span>
+                        <span class="chapter-meta">10 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MATHEMATICS (গণিত) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">📐</div>
+                    <div class="subject-title">গণিত</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="Math_Class10_Ch1.html" class="chapter-link">
+                        <span>১. একচল বিশিষ্ট দ্বিঘাত সমীকরণ</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                    <a href="Math_Class10_Ch2.html" class="chapter-link">
+                        <span>২. সরল সুদকষা</span>
+                        <span class="chapter-meta">5 Sets</span>
+                    </a>
+                    <a href="Math_Class10_Ch3.html" class="chapter-link">
+                        <span>৩. বৃত্ত সম্পর্কিত উপপাদ্য</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                    <a href="Math_Class10_Ch4.html" class="chapter-link">
+                        <span>৪. আয়তঘন</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ENGLISH (ইংরেজি) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">🔠</div>
+                    <div class="subject-title">English</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="English_Class10_Ch1.html" class="chapter-link">
+                        <span>1. Father's Help</span>
+                        <span class="chapter-meta">3 Sets</span>
+                    </a>
+                    <a href="English_Class10_Ch2.html" class="chapter-link">
+                        <span>2. Fable</span>
+                        <span class="chapter-meta">2 Sets</span>
+                    </a>
+                    <a href="English_Class10_Ch3.html" class="chapter-link">
+                        <span>3. The Passing Away of Bapu</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                    <a href="English_Class10_Grammar.html" class="chapter-link">
+                        <span>4. Grammar & Vocabulary</span>
+                        <span class="chapter-meta">10 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- VOUTO BIGYAN (Physical Science) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">⚛️</div>
+                    <div class="subject-title">ভৌতবিজ্ঞান</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="Chapter_1_Physical_Science.html" class="chapter-link">
+                        <span>১. পরিবেশের জন্য ভাবনা</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                    <a href="Chapter_2_Physical_Science.html" class="chapter-link">
+                        <span>২. গ্যাসের আচরণ</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                    <a href="Chapter_3_Physical_Science.html" class="chapter-link">
+                        <span>৩. রাসায়নিক গণনা</span>
+                        <span class="chapter-meta">2 Sets</span>
+                    </a>
+                    <a href="Chapter_4_Physical_Science.html" class="chapter-link">
+                        <span>৪. তাপের ঘটনাসমূহ</span>
+                        <span class="chapter-meta">4 Sets</span>
+                    </a>
+                    <a href="Chapter_5_Physical_Science.html" class="chapter-link">
+                        <span>৫. আলো</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                    <a href="Chapter_6_Physical_Science.html" class="chapter-link">
+                        <span>৬. চলতড়িৎ</span>
+                        <span class="chapter-meta">7 Sets</span>
+                    </a>
+                    <a href="Chapter_7_Physical_Science.html" class="chapter-link">
+                        <span>৭. পরমাণুর নিউক্লিয়াস</span>
+                        <span class="chapter-meta">3 Sets</span>
+                    </a>
+                    <a href="Chapter_8_Physical_Science.html" class="chapter-link">
+                        <span>৮. পদার্থের ভৌত ও রাসায়নিক ধর্ম</span>
+                        <span class="chapter-meta">12 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- JIBON BIGYAN (Life Science) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">🌿</div>
+                    <div class="subject-title">জীবন বিজ্ঞান</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="Chapter_1_Life_Science.html" class="chapter-link">
+                        <span>১. জীবজগতে নিয়ন্ত্রণ ও সমন্বয়</span>
+                        <span class="chapter-meta">12 Sets</span>
+                    </a>
+                    <a href="Chapter_2_Life_Science.html" class="chapter-link">
+                        <span>২. জীবনের প্রবাহমানতা</span>
+                        <span class="chapter-meta">7 Sets</span>
+                    </a>
+                    <a href="Chapter_3_Life_Science.html" class="chapter-link">
+                        <span>৩. বংশগতি ও জিনগত রোগ</span>
+                        <span class="chapter-meta">5 Sets</span>
+                    </a>
+                    <a href="Chapter_4_Life_Science.html" class="chapter-link">
+                        <span>৪. অভিব্যক্তি ও অভিযোজন</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                    <a href="Chapter_5_Life_Science.html" class="chapter-link">
+                        <span>৫. পরিবেশ, সম্পদ ও সংরক্ষণ</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ITIHAS (History) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">📜</div>
+                    <div class="subject-title">ইতিহাস</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="History_Class10_Ch1.html" class="chapter-link">
+                        <span>১. ইতিহাসের ধারণা</span>
+                        <span class="chapter-meta">7 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch2.html" class="chapter-link">
+                        <span>২. সংস্কার: বৈশিষ্ট্য ও পর্যালোচনা</span>
+                        <span class="chapter-meta">12 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch3.html" class="chapter-link">
+                        <span>৩. প্রতিরোধ ও বিদ্রোহ</span>
+                        <span class="chapter-meta">8 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch4.html" class="chapter-link">
+                        <span>৪. সংঘবদ্ধতার গোড়ার কথা</span>
+                        <span class="chapter-meta">8 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch5.html" class="chapter-link">
+                        <span>৫. বিকল্প চিন্তা ও উদ্যোগ</span>
+                        <span class="chapter-meta">8 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch6.html" class="chapter-link">
+                        <span>৬. কৃষক, শ্রমিক ও বামপন্থী আন্দোলন</span>
+                        <span class="chapter-meta">8 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch7.html" class="chapter-link">
+                        <span>৭. নারী, ছাত্র ও প্রান্তিক আন্দোলন</span>
+                        <span class="chapter-meta">8 Sets</span>
+                    </a>
+                    <a href="History_Class10_Ch8.html" class="chapter-link">
+                        <span>৮. উত্তর-ঔপনিবেশিক ভারত</span>
+                        <span class="chapter-meta">5 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- VUGOL (Geography) -->
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-icon">🌍</div>
+                    <div class="subject-title">ভূগোল</div>
+                </div>
+                <div class="chapter-list">
+                    <a href="Geography_Class10_Ch1.html" class="chapter-link">
+                        <span>১. বহির্জাত প্রক্রিয়া ও ভূমিরূপ</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                    <a href="Geography_Class10_Ch2.html" class="chapter-link">
+                        <span>২. বায়ুমণ্ডল</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                    <a href="Geography_Class10_Ch3.html" class="chapter-link">
+                        <span>৩. বারিমণ্ডল</span>
+                        <span class="chapter-meta">6 Sets</span>
+                    </a>
+                    <a href="Geography_Class10_Ch4.html" class="chapter-link">
+                        <span>৪. বর্জ্য ব্যবস্থাপনা</span>
+                        <span class="chapter-meta">3 Sets</span>
+                    </a>
+                    <a href="Geography_Class10_Ch5.html" class="chapter-link">
+                        <span>৫. ভারত (অবস্থান, ভূপ্রকৃতি...)</span>
+                        <span class="chapter-meta">18 Sets</span>
+                    </a>
+                    <a href="Geography_Class10_Ch6.html" class="chapter-link">
+                        <span>৬. উপগ্রহ চিত্র ও মানচিত্র</span>
+                        <span class="chapter-meta">3 Sets</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ========================================================================
+        // 🔒 গ্লোবাল স্টুডেন্ট ডেটাবেস (GLOBAL STUDENT DATABASE)
+        // আপনি এখানে ম্যানুয়ালি হাজার হাজার Username এবং Password অ্যাড করতে পারবেন।
+        // ফরম্যাট: "Username" : "Password",
+        // ========================================================================
+
+        const GLOBAL_USERS = {
+            "demo1": "1234",
+            "demo2": "1234",
+            "demo3": "1234",
+            "demo4": "1234",
+            "demo5": "1234",
+            "demo6": "1234",
+            "demo7": "1234",
+            "demo8": "1234",
+            "demo9": "1234",
+            "demo10": "1234",
+            "santos": "St8Qv41L",
+            "falcon": "Fc3MZ92k",
+            "titan": "Ti6Rp84W"
+            // এর নিচে আপনি আরও হাজার হাজার স্টুডেন্ট যোগ করতে পারেন
+        };
+
+        // GitHub-এ সমস্ত ফাইল কানেক্ট রাখার জন্য এই ডেটাবেসটিকে ব্রাউজারের লোকাল স্টোরেজে (Local Storage) সেভ করা হলো।
+        // ফলে অন্য যেকোনো চ্যাপ্টারের ফাইলে টেস্ট দিতে গেলে এই একটাই ডেটাবেস থেকে পাসওয়ার্ড চেক হবে।
+        localStorage.setItem("testBazarGlobalUsers", JSON.stringify(GLOBAL_USERS));
+
+
+        // ========================================================================
+        // Admin Modal Logic
+        // ========================================================================
+        function openAdmin() {
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminError').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function loginAdmin() {
+            const pass = document.getElementById('adminPassword').value;
+            // Admin password condition
+            if (pass === '1234') {
+                window.location.href = 'admin.html'; // Admin Page link
+            } else {
+                document.getElementById('adminError').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
+
+

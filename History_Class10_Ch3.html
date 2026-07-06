@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bazar - Class 10 History Chapter 3</title>
+    <link href="https://fonts.googleapis.com/css?family=Syne:wght@400;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a7a4a; --primary-hover: #2aad68; --accent: #f9a825;
+            --bg-main: #f0faf4; --bg-card: #ffffff; --bg-selected: #e8f4ec;
+            --bg-correct: #e8f7ef; --bg-wrong: #fdf0f0; --text-main: #1c2e24;
+            --text-meta: #5a7a66; --alert-danger: #dc3545; --border-color: #c5dccb;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tiro Bangla', serif; background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; }
+        .en-font { font-family: 'Syne', sans-serif; }
+        .hidden { display: none !important; }
+
+        /* Top Bar */
+        .top-bar { background-color: var(--primary); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(26,122,74,0.15); }
+        .logo { font-size: 1.5rem; font-weight: 800; cursor: pointer; }
+        .logo span { color: var(--accent); }
+        .timer-box { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; letter-spacing: 1px; transition: 0.3s; }
+        .timer-box.danger { background: var(--alert-danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Main Container */
+        .main-container { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        /* Hub View */
+        .hub-header { text-align: center; margin-bottom: 2.5rem; }
+        .hub-header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 5px; }
+        .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+        .set-card { background: var(--bg-card); padding: 2rem; border-radius: 12px; border: 1.5px solid var(--border-color); cursor: pointer; text-align: center; transition: 0.3s; position: relative; }
+        .set-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 8px 25px rgba(26,122,74,0.1); }
+        .set-icon { font-size: 3rem; margin-bottom: 10px; }
+        .set-name { font-weight: bold; color: var(--accent); font-size: 1.3rem; font-family: 'Syne', sans-serif; }
+        .set-title { font-weight: 700; color: var(--primary); margin: 8px 0; font-size: 1.1rem; }
+        .set-meta { font-size: 0.9rem; color: var(--text-meta); display: flex; justify-content: space-around; margin-top: 15px; font-weight: bold; background: var(--bg-main); padding: 5px; border-radius: 8px;}
+        .locked-badge { position: absolute; top: 10px; right: 10px; background: var(--alert-danger); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-family: 'Syne', sans-serif; }
+
+        /* Quiz View */
+        .quiz-info { display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-weight: bold; color: var(--primary); font-size: 1.1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+        .q-block { background: var(--bg-card); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 1.5rem; }
+        .q-num { color: var(--text-meta); font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
+        .q-text { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.5; }
+        .opts { display: flex; flex-direction: column; gap: 8px; }
+        .opt { display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; border: 1.5px solid var(--border-color); border-radius: 8px; cursor: pointer; background: white; font-size: 1.05rem; transition: 0.2s; }
+
+        .opt:hover:not(.disabled) { border-color: var(--primary); }
+        .opt.selected { border-color: var(--primary); background: var(--bg-selected); font-weight: bold; }
+        .opt.selected .opt-circle { background: var(--primary); color: white; border-color: var(--primary); }
+        .opt.correct { border-color: var(--primary); background: var(--bg-correct); font-weight: bold;}
+        .opt.correct .opt-circle { background: var(--primary); color: white; border-color: var(--primary); }
+        .opt.wrong { border-color: var(--alert-danger); background: var(--bg-wrong); }
+        .opt.wrong .opt-circle { background: var(--alert-danger); color: white; border-color: var(--alert-danger); }
+        .opt.disabled { cursor: default; }
+        .opt-circle { width: 26px; height: 26px; min-width: 26px; border-radius: 50%; border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Syne', sans-serif; font-size: 12px; transition: 0.2s;}
+        .explanation { background: var(--bg-main); border-left: 4px solid var(--primary); padding: 1rem; margin-top: 1rem; border-radius: 0 8px 8px 0; color: #2c4035; }
+
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-family: 'Tiro Bangla', serif; font-size: 1.1rem; width: 100%; display: block; margin-top: 2rem; box-shadow: 0 4px 10px rgba(26,122,74,0.3); }
+        .btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-box { background: white; padding: 2.5rem; border-radius: 14px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Syne', sans-serif; box-sizing: border-box; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Tiro Bangla', serif; font-size: 1rem; width: 100%; margin-top: 10px;}
+
+        /* Result View */
+        .result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 999; overflow-y: auto;}
+        .result-box { background: white; padding: 2rem; border-radius: 14px; width: 90%; max-width: 450px; text-align: center; margin: auto; }
+        .result-score { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin: 5px 0; font-family: 'Syne', sans-serif; }
+        .result-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .result-bar { background: var(--bg-main); padding: 1rem; border-radius: 10px; border: 1.5px solid var(--border-color); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="logo en-font" onclick="window.location.href='index.html'">Test<span>Bazar</span></div>
+        <div class="timer-box en-font hidden" id="timerBox"><span id="timerDisplay">15:00</span></div>
+        <div class="user-info en-font" id="userDisplay" style="font-weight: bold;">👤 Guest</div>
+    </header>
+
+    <div class="modal-overlay hidden" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color: var(--primary); margin-top:0;">লগইন করুন</h2>
+            <p style="color: var(--text-meta);">Test শুরু করতে আপনার ইউজারনেম ও পাসওয়ার্ড দিন</p>
+            <div id="loginSetName" style="font-weight:bold; color:var(--accent); margin-bottom:10px; font-family: 'Syne', sans-serif;">Set Name</div>
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter') doLogin()">
+            <div id="loginError" class="hidden" style="color: var(--alert-danger); margin: 10px 0; font-weight:bold;"></div>
+            <div style="display: flex; gap: 10px; margin-top:15px;">
+                <button class="btn-primary" onclick="doLogin()">লগইন করুন</button>
+                <button class="btn-primary" style="background: var(--alert-danger);" onclick="closeLogin()">বাতিল</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="hubView">
+            <div class="hub-header">
+                <h1>ইতিহাস - Class 10 Chapter 3</h1>
+                <p>প্রতিরোধ ও বিদ্রোহ: বৈশিষ্ট্য ও বিশ্লেষণ। সোর্সে থাকা সবকটি প্রশ্ন (২০টি) যথাযথ ব্যাখ্যামূলক সমাধান-সহ দেওয়া হলো।</p>
+            </div>
+            <div class="set-grid" id="setGrid"></div>
+            <div style="text-align:center; margin-top:30px;">
+                <button class="btn-primary" style="background:var(--text-meta); width: auto; padding: 10px 20px;" onclick="window.location.href='index.html'">← Main Dashboard-এ ফিরুন</button>
+            </div>
+        </div>
+
+        <div id="quizView" class="hidden">
+            <div class="quiz-info">
+                <div id="quizTitle">Set Name</div>
+                <div id="quizMetaInfo">Questions | 15 Mins</div>
+            </div>
+            <div id="quizList"></div>
+            <button class="btn-submit" id="submitTestBtn" onclick="submitQuiz()">Test জমা দিন ও ফলাফল দেখুন</button>
+        </div>
+
+        <div class="result-overlay hidden" id="resultModal">
+            <div class="result-box">
+                <div style="font-size: 3rem; margin-bottom:0;" id="resultIcon">🌟</div>
+                <h2 style="margin:5px 0;">আপনার ফলাফল</h2>
+                <div class="result-score en-font" id="finalScore">100%</div>
+                <div id="resultGrade" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 15px;">অসাধারণ!</div>
+
+                <div class="result-bars">
+                    <div class="result-bar"><div style="font-size:1.5rem; color:var(--primary);" class="en-font" id="rbCorrect">0</div><div>সঠিক</div></div>
+                    <div class="result-bar"><div style="font-size:1.5rem; color:var(--alert-danger);" class="en-font" id="rbWrong">0</div><div>ভুল / স্কিপ</div></div>
+                </div>
+
+                <p style="color:var(--text-meta); font-weight:bold; font-size:0.9rem; margin-bottom:15px;" id="attemptInfo">বাকি আছে 9 বার</p>
+
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button class="btn-primary" style="background: #28a745;" onclick="closeResultModal()">উত্তর ও ব্যাখ্যা দেখুন</button>
+                    <button class="btn-primary" style="background: #17a2b8;" onclick="restartQuiz()">আবার চেষ্টা করো</button>
+                    <button class="btn-primary" style="background: var(--text-meta);" onclick="window.location.href='History_Class10_Ch3.html'">Chapter Hub-এ ফিরুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // ========================================================================
+    // 🌐 GLOBAL DATABASE CONNECTION & QUESTION DATA
+    // ========================================================================
+    const STORAGE_KEY_ATTEMPTS = "testBazarAttempts_Hist10_Ch3_20Q";
+    const MAX_ATTEMPTS = 10;
+    const TIME_LIMIT = 15 * 60; // 15 Minutes
+
+    // সোর্স থেকে খুঁজে পাওয়া সবকটি (ঠিক ২০টি) প্রশ্নের ২টি সেটের সংকলন
+    const QUIZ_SETS = {
+        "set1": {
+            name: "Set 1", title: "উপজাতি ও কৃষক বিদ্রোহ (পর্ব ১)", icon: "🏹",
+            questions: [
+                {q: "১৮৭৮ খ্রিস্টাব্দের সংশোধিত অরণ্য আইনে অরণ্যকে কয়টি ভাগে ভাগ করা হয়েছিল?", opts: ["দুটি", "তিনটি", "চারটি", "পাঁচটি"], ans: 1, exp: "<b>ব্যাখ্যা:</b> ১৮৭৮ খ্রিস্টাব্দের সংশোধিত বনাঞ্চল আইনে অরণ্যকে তিনটি ভাগে ভাগ করা হয়- সংরক্ষিত অরণ্য, সুরক্ষিত অরণ্য এবং গ্রাম্য বনাঞ্চল।"},
+                {q: "মেদিনীপুরের লক্ষ্মীবাই কাকে বলা হয়?", opts: ["রানি ভবানী", "রানি দুর্গাবতী", "রানি শিরোমণি", "দেবী চৌধুরাণী"], ans: 2, exp: "<b>ব্যাখ্যা:</b> চুয়াড় বিদ্রোহের দ্বিতীয় পর্বে (১৭৯৮-৯৯) অসামান্য ও নির্ভীক ভূমিকা গ্রহণের জন্য রানি শিরোমণিকে 'মেদিনীপুরের লক্ষ্মীবাই' বলা হয়।"},
+                {q: "নীলকররা কৃষকদের অগ্রিম টাকা দিয়ে যে চাষ করাত, তাকে কী বলা হতো?", opts: ["এলাকা চাষ", "নিজআবাদি চাষ", "বে-এলাকা বা দাদনি চাষ", "খুৎকাঠি চাষ"], ans: 2, exp: "<b>ব্যাখ্যা:</b> নীলকর সাহেবরা চাষিদের বিঘা প্রতি ২ টাকা দাদন বা অগ্রিম টাকা দিয়ে চাষির জমিতে নীলচাষ করাত, যা বে-এলাকা বা দাদনি বা রায়তি চাষ নামে পরিচিত ছিল।"},
+                {q: "১৮৩০ খ্রিস্টাব্দের কোন্ আইন দ্বারা নীলকররা নীলচাষ না করলে চাষিদের অভিযুক্ত করতে পারত?", opts: ["পঞ্চম আইন (Regulation V)", "সপ্তম আইন", "অষ্টম আইন", "দশম আইন"], ans: 0, exp: "<b>ব্যাখ্যা:</b> ১৮৩০ খ্রিস্টাব্দের পঞ্চম আইন বা Regulation V-এর দ্বারা নীলকরদের এই অধিকার দেওয়া হয়েছিল যে নীলচাষে অবাধ্য হলে তারা চাষিদের অভিযুক্ত করতে পারবে।"},
+                {q: "কোল বিদ্রোহ (১৮৩১-৩৩) প্রধানত কোন্ অঞ্চলে সংঘটিত হয়েছিল?", opts: ["জঙ্গলমহল", "ছোটোনাগপুর", "রাজমহল পাহাড়", "খান্দেশ"], ans: 1, exp: "<b>ব্যাখ্যা:</b> ঔপনিবেশিক শাসনকালে এ দেশে সংঘটিত উপজাতি বিদ্রোহগুলির মধ্যে অন্যতম কোল বিদ্রোহটি বিহারের ছোটোনাগপুর অঞ্চলের জঙ্গলে বসবাসকারী কোলদের দ্বারা সংঘটিত হয়েছিল।"},
+                {q: "কোল বিদ্রোহের সময় উপজাতিরা বহিরাগত মহাজনদের কী বলত?", opts: ["খুৎকাঠি", "পাইকান", "দিকু", "কেনারাম"], ans: 2, exp: "<b>ব্যাখ্যা:</b> ব্রিটিশ শাসনভার প্রতিষ্ঠিত হওয়ার পর সেখানে বহিরাগত যে মহাজনরা ইজারাদার হিসেবে নিযুক্ত হয়ে কোলদের ওপর শোষণ চালাত, কোলরা তাদের 'দিকু' বলত।"},
+                {q: "\"ইংরেজ শাসন ধ্বংস করাই ছিল এই বিদ্রোহের প্রধান উদ্দেশ্য \"- কোল বিদ্রোহ সম্পর্কে এই মতটি কার?", opts: ["জগদীশচন্দ্র ঝা", "মেজর সাদারল্যান্ড", "ভেরিয়ার এলউইন", "চার্লস মেটকাফ"], ans: 3, exp: "<b>ব্যাখ্যা:</b> কোল বিদ্রোহের উদ্দেশ্য বিশ্লেষণ করতে গিয়ে চার্লস মেটকাফ এই সিদ্ধান্ত জানিয়েছিলেন যে, ইংরেজ শাসন ধ্বংস করাই ছিল এই বিদ্রোহের প্রধান উদ্দেশ্য।"},
+                {q: "কোন্ ঐতিহাসিক মনে করেন কোলদের জমি হাতছাড়া হওয়ার জন্যই কোল বিদ্রোহ হয়েছিল?", opts: ["জগদীশচন্দ্র ঝা", "ভেরিয়ার এলউইন", "চার্লস মেটকাফ", "সুপ্রকাশ রায়"], ans: 1, exp: "<b>ব্যাখ্যা:</b> ঐতিহাসিক ভেরিয়ার এলউইন কোল বিদ্রোহের কারণ বিশ্লেষণ করে মনে করেন যে, নিজস্ব জমি হাতছাড়া হওয়াই ছিল এই আদিবাসী বিদ্রোহের মূল কারণ।"},
+                {q: "ক্যাথলিন গফ কোল বিদ্রোহকে কী ধরনের বিদ্রোহ বলে মনে করেন?", opts: ["সামন্ত বিদ্রোহ", "জাতীয় বিদ্রোহ", "অধিকার পুনরুদ্ধারের আকাঙ্ক্ষা", "ধর্মযুদ্ধ"], ans: 2, exp: "<b>ব্যাখ্যা:</b> সমাজতাত্ত্বিক ক্যাথলিন গফ এই পর্বের অন্যান্য বিদ্রোহগুলির পাশাপাশি কোল বিদ্রোহের মধ্যেও কোলদের হারিয়ে যাওয়া অধিকার পুনরুদ্ধারের আকাঙ্ক্ষাই খুঁজে পেয়েছেন।"},
+                {q: "কোলরা বিদ্রোহের বার্তা গ্রাম থেকে গ্রামান্তরে কীভাবে ছড়িয়ে দিত?", opts: ["চিঠি পাঠিয়ে", "পত্রিকা ছেপে", "তির বা আমগাছের শাখা বিলি করে অথবা নাকাড়া বাজিয়ে", "গুপ্তচরের মাধ্যমে"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বিদ্রোহের বিস্তার ঘটাতে কোলরা তির বা আমগাছের শাখা বিলি করে অথবা নাকাড়া বাজিয়ে গ্রাম থেকে গ্রামান্তরে তাদের বার্তা পৌঁছে দিত।"},
+                {q: "কোল বিদ্রোহের কারণে ইংরেজ সরকার কোন্ নতুন ব্যবস্থা বাতিল করে দেয়?", opts: ["চিরস্থায়ী বন্দোবস্ত", "নীলচাষ", "পুরনো জমিদার ও বহিরাগতদের জমি কোলদের ফিরিয়ে দেওয়া হয় এবং রাজস্ব হ্রাস করা হয়", "আফিম চাষ"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বিদ্রোহের পর জমিদার ও বহিরাগতরা যেসব জমি কেড়ে নিয়েছিল সেগুলি আবার কোলদের ফিরিয়ে দেওয়া হয় এবং রাজস্বের পরিমাণ হ্রাস করা হয়।"},
+                {q: "'হুল' শব্দের অর্থ কী?", opts: ["যুদ্ধ", "বিদ্রোহ", "স্বাধীনতা", "অরণ্য"], ans: 1, exp: "<b>ব্যাখ্যা:</b> সাঁওতালরা তাদের এই সশস্ত্র অভ্যুত্থানকে 'হুল' নামে ডাকত, যার অর্থ হলো বিদ্রোহ।"},
+                {q: "মুন্ডাদের সমাজে যৌথ মালিকানায় চাষাবাদের চিরাচরিত প্রথাটিকে কী বলা হতো?", opts: ["খুৎকাঠি প্রথা", "পাইকান প্রথা", "দাদনি প্রথা", "রায়তি প্রথা"], ans: 0, exp: "<b>ব্যাখ্যা:</b> নতুন ভূমিব্যবস্থা চালু হওয়ার ফলে জমিতে ব্যক্তিমালিকানা প্রতিষ্ঠিত হলে মুন্ডাদের যৌথ মালিকানায় চাষাবাদের চিরাচরিত 'খুৎকাঠি প্রথা'-র অবসান হয়, যা বিদ্রোহের একটি বড় কারণ ছিল।"},
+                {q: "মুন্ডারা বিরসা মুন্ডাকে কী নামে ডাকত?", opts: ["সিংবোঙ্গা", "ধরতি আবা বা পৃথিবীর পিতা", "দিকু", "বিদ্রোহী রাজা"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বিরসা মুন্ডা স্বাধীন মুন্ডারাজ্য প্রতিষ্ঠার লক্ষ্যে মুন্ডাদের সংঘবদ্ধ করেছিলেন এবং তিনি তাদের কাছে 'ধরতি আবা' বা 'পৃথিবীর পিতা' নামে পরিচিত ছিলেন।"},
+                {q: "বঙ্কিমচন্দ্র চট্টোপাধ্যায়ের কোন্ উপন্যাসে সন্ন্যাসী-ফকির বিদ্রোহের পরিচয় পাওয়া যায়?", opts: ["বিষবৃক্ষ", "গোরা", "আনন্দমঠ ও দেবী চৌধুরাণী", "কপালকুণ্ডলা"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বঙ্কিমচন্দ্র চট্টোপাধ্যায়ের বিখ্যাত দুটি উপন্যাস 'আনন্দমঠ' ও 'দেবী চৌধুরাণী'-তে এই সন্ন্যাসী ও ফকির বিদ্রোহের বিস্তৃত পরিচয় পাওয়া যায়।"}
+            ]
+        },
+        "set2": {
+            name: "Set 2", title: "উপজাতি ও কৃষক বিদ্রোহ (পর্ব ২)", icon: "🔥",
+            questions: [
+                {q: "সন্ন্যাসী-ফকির বিদ্রোহ প্রথম কোন্ অঞ্চলে শুরু হয়েছিল?", opts: ["মেদিনীপুর", "ঢাকা", "বীরভূম", "মালদহ"], ans: 1, exp: "<b>ব্যাখ্যা:</b> ১৭৬৩ খ্রিস্টাব্দে ঢাকায় সর্বপ্রথম এই বিদ্রোহ শুরু হয়ে পরে তা ধীরে ধীরে কোচবিহার, রংপুর, মালদহ, দিনাজপুরসহ বিভিন্ন অঞ্চলে ছড়িয়ে পড়েছিল।"},
+                {q: "'তরিকা-ই-মহম্মদীয়া' কথার অর্থ কী?", opts: ["নবজাগরণ", "আল্লার পথ", "মহম্মদের পথ", "পবিত্র পথ"], ans: 2, exp: "<b>ব্যাখ্যা:</b> 'তরিকা-ই-মহম্মদীয়া' একটি আরবি শব্দবন্ধ, যার অর্থ হলো মহম্মদের নির্দেশিত পথ।"},
+                {q: "বারাসত বিদ্রোহকে 'অন্ধ মুসলিম জেহাদ' বলে কে মন্তব্য করেছেন?", opts: ["নরহরি কবিরাজ", "রমেশচন্দ্র মজুমদার", "ড. অভিজিৎ দত্ত", "রণজিৎ গুহ"], ans: 2, exp: "<b>ব্যাখ্যা:</b> তিতুমিরের আন্দোলন মূল ওয়াহাবি আদর্শ থেকে পথভ্রষ্ট হয়েছিল দাবি করে ঐতিহাসিক ড. অভিজিৎ দত্ত একে 'অন্ধ মুসলিম জেহাদ' বলেছিলেন।"},
+                {q: "ফরাজিদের বিকল্প সরকার ও আদালত স্থাপনের পদক্ষেপ আন্দোলনটিকে কীরূপ রূপ দিয়েছিল?", opts: ["অহিংস রূপ", "বৈপ্লবিক রূপ", "সাংবিধানিক রূপ", "আপসমূলক রূপ"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বিকল্প সরকার, শাসন ও আদালত স্থাপন এবং সেনাবাহিনী গঠনের মতো পদক্ষেপগুলি ফরাজি আন্দোলনকে একটি বৈপ্লবিক রূপ দিয়েছিল, যা পরবর্তী কৃষক আন্দোলনগুলিকে প্রভাবিত করেছিল।"},
+                {q: "ফরাজি আন্দোলনকে 'সাম্যবাদী প্রজাতান্ত্রিক আন্দোলন' বলে কে চিহ্নিত করেছেন?", opts: ["সুপ্রকাশ রায়", "উইলিয়াম হান্টার", "নরহরি কবিরাজ", "রমেশচন্দ্র মজুমদার"], ans: 1, exp: "<b>ব্যাখ্যা:</b> ঐতিহাসিক উইলিয়াম হান্টার এই আন্দোলনের মধ্যে শ্রেণিসংগ্রামের বীজ লক্ষ করে একে 'সাম্যবাদী প্রজাতান্ত্রিক আন্দোলন' বলে চিহ্নিত করেছেন।"}
+            ]
+        }
+    };
+
+    let loggedInUser = null;
+    let currentSetId = null;
+    let questions = [];
+    let userAnswers = {};
+    let isReviewMode = false;
+    let score = 0;
+    let wrongAnswers = 0;
+    let timerInterval;
+    let timeLeft = TIME_LIMIT;
+
+    window.onload = () => { buildHub(); };
+
+    function buildHub() {
+        const grid = document.getElementById('setGrid');
+        grid.innerHTML = '';
+
+        let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+
+        Object.keys(QUIZ_SETS).forEach(setId => {
+            const set = QUIZ_SETS[setId];
+            const card = document.createElement('div');
+            card.className = 'set-card';
+
+            let attemptCount = 0;
+            if(loggedInUser && userAttempts[loggedInUser + "_" + setId]) {
+                attemptCount = userAttempts[loggedInUser + "_" + setId];
+            }
+
+            let lockedHtml = '';
+            if(attemptCount >= MAX_ATTEMPTS) {
+                lockedHtml = `<div class="locked-badge">Completed</div>`;
+            }
+
+            card.innerHTML = `
+                ${lockedHtml}
+                <div class="set-icon">${set.icon}</div>
+                <div class="set-name">${set.name}</div>
+                <div class="set-title">${set.title}</div>
+                <div class="set-meta"><span>${set.questions.length} Questions</span><span>15 Mins</span></div>
+            `;
+            card.onclick = () => selectSet(setId);
+            grid.appendChild(card);
+        });
+    }
+
+    function selectSet(setId) {
+        if(loggedInUser) {
+            let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+            let attemptCount = userAttempts[loggedInUser + "_" + setId] || 0;
+
+            if(attemptCount >= MAX_ATTEMPTS) {
+                alert(`⚠️ আপনি এই সেটের সর্বোচ্চ ${MAX_ATTEMPTS} বার Test দিয়েছেন।`);
+                return;
+            }
+            startQuiz(setId);
+        } else {
+            currentSetId = setId;
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('loginSetName').innerText = QUIZ_SETS[setId].name + ": " + QUIZ_SETS[setId].title;
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+    }
+
+    function closeLogin() { document.getElementById('loginModal').classList.add('hidden'); }
+
+    function doLogin() {
+        const u = document.getElementById('loginUsername').value.trim();
+        const p = document.getElementById('loginPassword').value.trim();
+        const err = document.getElementById('loginError');
+
+        const GLOBAL_USERS = JSON.parse(localStorage.getItem("testBazarGlobalUsers")) || {};
+
+        if(!u || !p) { err.innerText = "ইউজারনেম এবং পাসওয়ার্ড দিন!"; err.classList.remove('hidden'); return; }
+
+        if(GLOBAL_USERS[u] && GLOBAL_USERS[u] === p) {
+            loggedInUser = u;
+            document.getElementById('userDisplay').innerText = `👤 ${u}`;
+            closeLogin();
+            buildHub();
+            if(currentSetId) {
+                startQuiz(currentSetId);
+            }
+        } else {
+            err.innerText = "ইউজারনেম বা পাসওয়ার্ড ভুল!";
+            err.classList.remove('hidden');
+        }
+    }
+
+    function incrementAttempt(user, setId) {
+        let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+        let key = user + "_" + setId;
+        userAttempts[key] = (userAttempts[key] || 0) + 1;
+        localStorage.setItem(STORAGE_KEY_ATTEMPTS, JSON.stringify(userAttempts));
+    }
+
+    function startQuiz(setId) {
+        currentSetId = setId;
+        incrementAttempt(loggedInUser, setId);
+
+        questions = QUIZ_SETS[setId].questions;
+        userAnswers = {};
+        isReviewMode = false;
+        score = 0;
+        wrongAnswers = 0;
+        timeLeft = TIME_LIMIT;
+
+        document.getElementById('hubView').classList.add('hidden');
+        document.getElementById('resultModal').classList.add('hidden');
+        document.getElementById('quizView').classList.remove('hidden');
+        document.getElementById('timerBox').classList.remove('hidden');
+        document.getElementById('timerBox').classList.remove('danger');
+        document.getElementById('submitTestBtn').classList.remove('hidden');
+
+        document.getElementById('quizTitle').innerText = QUIZ_SETS[setId].name + " | " + QUIZ_SETS[setId].title;
+        document.getElementById('quizMetaInfo').innerText = `${questions.length} Questions | 15 Mins`;
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(tick, 1000);
+
+        renderQuestions();
+    }
+
+    function tick() {
+        timeLeft--;
+        const m = Math.floor(timeLeft / 60);
+        const s = timeLeft % 60;
+        document.getElementById('timerDisplay').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (timeLeft <= 60) document.getElementById('timerBox').classList.add('danger');
+        if (timeLeft <= 0) { submitQuiz(); }
+    }
+
+    const LABELS = ['A', 'B', 'C', 'D'];
+
+    function renderQuestions() {
+        const quizList = document.getElementById('quizList');
+        let html = '';
+
+        questions.forEach((q, i) => {
+            html += `<div class="q-block" id="qBlock_${i}">
+                        <div class="q-num">প্রশ্ন ${i + 1} / ${questions.length}</div>
+                        <div class="q-text">${q.q}</div>
+                        <div class="opts">`;
+
+            q.opts.forEach((opt, j) => {
+                html += `<div class="opt" id="opt_${i}_${j}" onclick="selectOpt(${i}, ${j})">
+                            <div class="opt-circle">${LABELS[j]}</div>
+                            <div class="opt-text">${opt}</div>
+                         </div>`;
+            });
+
+            html += `</div>
+                     <div class="explanation hidden" id="exp_${i}">${q.exp}</div>
+                     </div>`;
+        });
+
+        quizList.innerHTML = html;
+        window.scrollTo(0, 0);
+    }
+
+    function selectOpt(qIdx, optIdx) {
+        if (isReviewMode) return;
+
+        userAnswers[qIdx] = optIdx;
+
+        const block = document.getElementById(`qBlock_${qIdx}`);
+        const opts = block.querySelectorAll('.opt');
+        opts.forEach(o => o.classList.remove('selected'));
+
+        document.getElementById(`opt_${qIdx}_${optIdx}`).classList.add('selected');
+    }
+
+    function submitQuiz() {
+        if (isReviewMode) return;
+
+        const answeredCount = Object.keys(userAnswers).length;
+        if (timeLeft > 0 && answeredCount < questions.length) {
+            const confirmSubmit = confirm(`আপনি মাত্র ${answeredCount} টি প্রশ্নের উত্তর দিয়েছেন। আপনি কি সত্যিই Test জমা দিতে চান?`);
+            if(!confirmSubmit) return;
+        }
+
+        isReviewMode = true;
+        clearInterval(timerInterval);
+        document.getElementById('timerBox').classList.add('hidden');
+        document.getElementById('submitTestBtn').classList.add('hidden');
+
+        questions.forEach((q, i) => {
+            const selected = userAnswers[i];
+            const block = document.getElementById(`qBlock_${i}`);
+            const opts = block.querySelectorAll('.opt');
+
+            opts.forEach(o => o.classList.remove('selected'));
+            opts.forEach(o => o.classList.add('disabled'));
+
+            if(selected === q.ans) {
+                score++;
+                document.getElementById(`opt_${i}_${selected}`).classList.add('correct');
+            } else {
+                if(selected !== undefined) {
+                    document.getElementById(`opt_${i}_${selected}`).classList.add('wrong');
+                    wrongAnswers++;
+                }
+                document.getElementById(`opt_${i}_${q.ans}`).classList.add('correct');
+            }
+
+            document.getElementById(`exp_${i}`).classList.remove('hidden');
+        });
+
+        showResultModal(score);
+    }
+
+    function showResultModal(score) {
+        document.getElementById('resultModal').classList.remove('hidden');
+
+        const pct = Math.round((score / questions.length) * 100);
+
+        document.getElementById('finalScore').textContent = pct + '%';
+        document.getElementById('rbCorrect').textContent = score;
+        document.getElementById('rbWrong').textContent = wrongAnswers;
+
+        let icon = '💪', grade = 'চেষ্টা চালিয়ে যাও!';
+        if(pct >= 90) { icon = '🌟'; grade = 'অসাধারণ!'; }
+        else if(pct >= 70) { icon = '👍'; grade = 'খুব ভালো!'; }
+        else if(pct >= 50) { icon = '📚'; grade = 'ভালো চেষ্টা!'; }
+
+        document.getElementById('resultIcon').textContent = icon;
+        document.getElementById('resultGrade').textContent = grade;
+
+        let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+        let attemptCount = userAttempts[loggedInUser + "_" + currentSetId] || 0;
+        let remaining = MAX_ATTEMPTS - attemptCount;
+
+        document.getElementById('attemptInfo').innerText = `বাকি আছে ${remaining} বার Test দেওয়ার সুযোগ (সর্বোচ্চ ${MAX_ATTEMPTS} বার)`;
+    }
+
+    function closeResultModal() {
+        document.getElementById('resultModal').classList.add('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function restartQuiz() {
+        closeResultModal();
+        let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+        let attemptCount = userAttempts[loggedInUser + "_" + currentSetId] || 0;
+
+        if(attemptCount >= MAX_ATTEMPTS) {
+            alert(`⚠️ আপনি এই সেটের সর্বোচ্চ ${MAX_ATTEMPTS} বার Test দিয়েছেন।`);
+            buildHub();
+            document.getElementById('quizView').classList.add('hidden');
+            document.getElementById('hubView').classList.remove('hidden');
+            return;
+        }
+        startQuiz(currentSetId);
+    }
+</script>
+
+</body>
+</html>
+
+

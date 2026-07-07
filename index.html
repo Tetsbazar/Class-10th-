@@ -38,6 +38,13 @@
         .header-text h1 { font-size: 2.2rem; color: var(--primary); margin-bottom: 10px; }
         .header-text p { font-size: 1.1rem; color: var(--text-meta); }
 
+        /* Demo Test Section */
+        .demo-section { background: linear-gradient(135deg, #f9a825, #f57f17); padding: 25px; border-radius: 16px; text-align: center; margin-bottom: 30px; box-shadow: 0 8px 20px rgba(249, 168, 37, 0.3); position: relative; overflow: hidden;}
+        .demo-section h2 { color: white; font-size: 1.8rem; margin-bottom: 10px; }
+        .demo-section p { color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 20px; }
+        .demo-btn { background: white; color: #f57f17; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 1.2rem; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: 0.3s; font-family: 'Tiro Bangla', serif;}
+        .demo-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+
         /* WhatsApp Section */
         .wa-contact { background: #e8f4ec; border: 2px dashed #25D366; padding: 20px; border-radius: 12px; text-align: center; margin: 0 auto 40px auto; max-width: 600px; }
         .wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #25D366; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: 'Syne', sans-serif; font-size: 1.05rem; margin-top: 15px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); transition: 0.2s; }
@@ -98,6 +105,13 @@
         <div class="header-text">
             <h1>দশম শ্রেণি (Class 10) মক টেস্ট ড্যাশবোর্ড</h1>
             <p>আপনার পছন্দের বিষয় নির্বাচন করে চ্যাপ্টার অনুযায়ী মক টেস্ট শুরু করুন</p>
+        </div>
+
+        <!-- FREE DEMO TEST SECTION -->
+        <div class="demo-section">
+            <h2>🆓 ফ্রি ডেমো টেস্ট (সবার জন্য)</h2>
+            <p>Test Bazar কীভাবে কাজ করে তা দেখতে এই ডেমো টেস্টটি দিন। এর জন্য কোনো পাসওয়ার্ড লাগবে না!</p>
+            <a href="Demo_Test_Class10.html" class="demo-btn">🚀 ডেমো টেস্ট শুরু করুন</a>
         </div>
 
         <!-- WHATSAPP CONTACT SECTION -->
@@ -342,35 +356,36 @@
     <script>
         // ========================================================================
         // 🔒 গ্লোবাল স্টুডেন্ট ডেটাবেস (GLOBAL STUDENT DATABASE)
-        // আপনি এখানে ম্যানুয়ালি হাজার হাজার Username এবং Password অ্যাড করতে পারবেন।
-        // ফরম্যাট: "Username" : "Password",
+        // অতিরিক্ত ১০০টি ইউজারনেম মুছে ফেলা হয়েছে। শুধু বেসিক ইউজারগুলো রাখা হলো।
         // ========================================================================
 
         const GLOBAL_USERS = {
-            "user1": "1234",
-            "user2": "1234",
-            "user3": "1234",
-            "user4": "1234",
-
-            // Advanced users generated previously
-            "alfa_romeo": "ARx7P29m",
-            "santos": "St8Qv41L",
-            "falcon": "Fc3MZ92k",
-            "titan": "Ti6Rp84W"
-            // এর নিচে আপনি আরও হাজার হাজার স্টুডেন্ট যোগ করতে পারেন
+            "demo1": "1234",
+            "demo2": "1234",
+            "demo3": "1234",
+            "demo4": "1234",
+            "demo5": "1234",
+            "demo6": "1234",
+            "demo7": "1234",
+            "demo8": "1234",
+            "demo9": "1234",
+            "demo10": "1234",
+            "ajay": "7251",
+            "sagun": "1234",
+            "anita": "1234",
+            "jaba": "1234"
         };
 
         // GitHub-এ সমস্ত ফাইল কানেক্ট রাখার জন্য এই ডেটাবেসটিকে ব্রাউজারের লোকাল স্টোরেজে (Local Storage) সেভ করা হলো।
-        // ফলে অন্য যেকোনো চ্যাপ্টারের ফাইলে টেস্ট দিতে গেলে এই একটাই ডেটাবেস থেকে পাসওয়ার্ড চেক হবে।
         localStorage.setItem("testBazarGlobalUsers", JSON.stringify(GLOBAL_USERS));
 
         // ========================================================================
-        // Admin Login Functions
+        // Admin Modal Logic
         // ========================================================================
         function openAdmin() {
-            document.getElementById('adminModal').classList.remove('hidden');
             document.getElementById('adminPassword').value = '';
             document.getElementById('adminError').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
         }
 
         function closeAdmin() {
@@ -389,5 +404,4 @@
     </script>
 </body>
 </html>
-
 

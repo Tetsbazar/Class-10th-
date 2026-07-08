@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bazar - Class 10 Physical Science Chapter 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a7a4a; --primary-hover: #2aad68; --accent: #f9a825;
+            --bg-main: #f0faf4; --bg-card: #ffffff; --bg-selected: #e8f4ec;
+            --text-main: #1c2e24; --text-meta: #5a7a66; --border-color: #c5dccb;
+            --alert-danger: #dc3545; --correct: #28a745;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tiro Bangla', serif; background: var(--bg-main); color: var(--text-main); line-height: 1.6; }
+        .en-font { font-family: 'Syne', sans-serif; }
+        .hidden { display: none !important; }
+
+        .top-bar { background: var(--primary); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo { font-size: 1.5rem; font-weight: 800; cursor: pointer; }
+        .logo span { color: var(--accent); }
+        .timer-box { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 8px; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 5px; }
+        .timer-box.danger { background: var(--alert-danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .user-info { background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.95rem; }
+
+        .main-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* Hub View */
+        .hub-header { text-align: center; margin-bottom: 30px; }
+        .hub-header h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; }
+        .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .set-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
+        .set-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(26,122,74,0.1); }
+        .set-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .set-name { font-size: 1.3rem; font-weight: bold; color: var(--text-main); margin-bottom: 5px; font-family: 'Syne', sans-serif;}
+        .set-topic { font-size: 0.95rem; color: var(--text-meta); margin-bottom: 15px; height: 40px; }
+        .set-meta-info { display: flex; justify-content: center; gap: 10px; font-size: 0.85rem; font-weight: bold; color: var(--primary); }
+        .set-meta-info span { background: var(--bg-main); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .attempt-badge { position: absolute; top: 10px; right: 10px; background: #ffeeba; color: #856404; font-size: 0.8rem; font-weight: bold; padding: 3px 8px; border-radius: 10px; }
+        .attempt-badge.locked { background: var(--alert-danger); color: white; border: none; }
+
+        /* Quiz View */
+        .quiz-info { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: var(--primary); font-size: 1.1rem; }
+
+        .q-block { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .q-text { font-size: 1.2rem; font-weight: bold; color: var(--text-main); margin-bottom: 15px; line-height: 1.5; }
+
+        .options-grid { display: flex; flex-direction: column; gap: 10px; }
+        .opt { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border: 2px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 1.05rem; }
+        .opt:hover:not(.selected):not(.correct):not(.wrong) { background: var(--bg-main); border-color: var(--primary); }
+        .opt.selected { background: var(--bg-selected); border-color: var(--primary); }
+
+        .opt-circle { min-width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Syne', sans-serif; color: var(--text-meta); flex-shrink: 0; }
+        .opt.selected .opt-circle { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .opt.correct { background: #e8f7ef; border-color: var(--correct); }
+        .opt.correct .opt-circle { background: var(--correct); border-color: var(--correct); color: white; }
+        .opt.wrong { background: #fdf0f0; border-color: var(--alert-danger); }
+        .opt.wrong .opt-circle { background: var(--alert-danger); border-color: var(--alert-danger); color: white; }
+
+        .explanation { margin-top: 15px; padding: 15px; background: #e8f4ec; border-left: 4px solid var(--primary); border-radius: 0 8px 8px 0; font-size: 0.95rem; color: #2c4035; line-height: 1.5;}
+
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 1.2rem; font-weight: bold; font-family: 'Tiro Bangla', serif; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(26,122,74,0.2); transition: 0.2s; }
+        .btn-submit:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-family: 'Tiro Bangla', serif; cursor: pointer; font-size: 1rem; transition: 0.2s; font-weight: bold;}
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto;}
+        .modal-box { background: white; padding: 2.5rem; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); margin: auto;}
+        .modal-box input { width: 100%; padding: 12px 15px; margin: 10px 0; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: 'Syne', sans-serif; box-sizing: border-box; outline: none; transition: 0.2s; }
+        .modal-box input:focus { border-color: var(--primary); }
+
+        .result-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto; padding: 20px; }
+        .result-box { background: white; padding: 2.5rem 2rem; border-radius: 16px; width: 100%; max-width: 450px; text-align: center; margin: auto; }
+        .result-score { font-size: 4rem; font-weight: 800; color: var(--primary); line-height: 1; margin: 15px 0; }
+        .result-bars { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .result-bar { background: var(--bg-main); padding: 15px; border-radius: 12px; width: 100px; border: 1px solid var(--border-color); }
+
+        /* WhatsApp Button */
+        .wa-btn { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; background: #25D366; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: 'Syne', sans-serif; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); width: 100%; box-sizing: border-box; transition: 0.2s;}
+        .wa-btn:hover { background: #128C7E; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="logo en-font" onclick="window.location.reload()">Test<span>Bazar</span></div>
+        <div class="timer-box en-font hidden" id="timerBox">⏱ <span id="timerDisplay">10:00</span></div>
+        <div class="user-info en-font" id="userDisplay" style="font-weight: bold;">👤 Guest</div>
+    </header>
+
+    <!-- LOGIN MODAL -->
+    <div class="modal-overlay hidden" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color: var(--primary); margin-top:0;">লগইন করুন</h2>
+            <p style="color: var(--text-meta); margin-bottom: 15px; font-size: 0.9rem;">Test শুরু করতে আপনার ইউজারনেম ও পাসওয়ার্ড দিন</p>
+
+            <div id="loginSetName" style="background: var(--bg-main); padding: 8px; border-radius: 8px; font-weight:bold; color:var(--primary); margin-bottom:15px; font-family: 'Syne', sans-serif; font-size: 0.95rem;">Set Name</div>
+
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter') doLogin()">
+
+            <div id="loginError" class="hidden" style="color: var(--alert-danger); margin: 10px 0; font-weight:bold; font-size: 0.9rem;"></div>
+
+            <div style="display: flex; gap: 10px; margin-top:15px; justify-content: center;">
+                <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="doLogin()">লগইন করুন</button>
+                <button class="btn-primary" style="background: var(--alert-danger); width: 100%; padding: 12px;" onclick="closeLogin()">বাতিল</button>
+            </div>
+
+            <!-- WhatsApp Section -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1.5px dashed var(--border-color); font-size: 0.9rem; color: var(--text-meta);">
+                ইউজারনেম ও পাসওয়ার্ড না থাকলে মেসেজ করুন:
+                <a href="https://wa.me/918710032880?text=Hello%20Test%20Bazar,%20I%20need%20a%20username%20and%20password." target="_blank" class="wa-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.2-.099-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
+                    WhatsApp: 8710032880
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- HUB VIEW -->
+        <div id="hubView">
+            <div class="hub-header">
+                <h1 style="color: var(--primary); margin-bottom: 10px;">ভৌতবিজ্ঞান - Class 10 Chapter 2</h1>
+                <p style="color: var(--text-meta);">গ্যাসের আচরণ (সম্পূর্ণ ৪টি সেট)</p>
+            </div>
+            <div class="set-grid" id="setGrid"></div>
+            <div style="text-align:center; margin-top:40px;">
+                <button class="btn-primary" style="background:var(--text-meta); width: auto; padding: 12px 25px;" onclick="window.history.back()">← Main Dashboard-এ ফিরুন</button>
+            </div>
+        </div>
+
+        <!-- QUIZ VIEW -->
+        <div id="quizView" class="hidden">
+            <div class="quiz-info">
+                <div id="quizTitle">Set Name</div>
+                <div id="quizMetaInfo" class="en-font">15 Questions | 10 Mins</div>
+            </div>
+            <div id="quizList"></div>
+            <button class="btn-submit" id="submitTestBtn" onclick="submitQuiz()">Test জমা দিন ও ফলাফল দেখুন</button>
+        </div>
+    </div>
+
+    <!-- RESULT MODAL -->
+    <div class="result-overlay hidden" id="resultModal">
+        <div class="result-box">
+            <div style="font-size: 3.5rem; margin-bottom:0; line-height: 1;" id="resultIcon">🌟</div>
+            <h2 style="margin:10px 0; color: var(--text-main);">আপনার ফলাফল</h2>
+            <div class="result-score en-font" id="finalScore">100%</div>
+            <div id="resultGrade" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; color: var(--accent);">অসাধারণ!</div>
+
+            <div class="result-bars">
+                <div class="result-bar">
+                    <div style="font-size:1.8rem; font-weight: 800; color:var(--primary);" class="en-font" id="rbCorrect">0</div>
+                    <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-meta);">সঠিক</div>
+                </div>
+                <div class="result-bar">
+                    <div style="font-size:1.8rem; font-weight: 800; color:var(--alert-danger);" class="en-font" id="rbWrong">0</div>
+                    <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-meta);">ভুল / স্কিপ</div>
+                </div>
+            </div>
+
+            <p style="background: var(--bg-main); padding: 10px; border-radius: 8px; color:var(--text-meta); font-weight:bold; font-size:0.95rem; margin-bottom:25px;" id="attemptInfo" class="en-font">বাকি আছে 9 বার</p>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-primary" style="background: #28a745; width: 100%; padding: 14px; font-size: 1.05rem;" onclick="closeResultModal()">উত্তর ও ব্যাখ্যা দেখুন</button>
+                <button class="btn-primary" style="background: #17a2b8; width: 100%; padding: 14px; font-size: 1.05rem;" onclick="restartQuiz()">আবার চেষ্টা করো</button>
+                <button class="btn-primary" style="background: var(--text-meta); width: 100%; padding: 14px; font-size: 1.05rem;" onclick="window.location.reload()">Chapter Hub-এ ফিরুন</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+const STORAGE_KEY_ATTEMPTS = "testBazarAttemptsPS10thCh2";
+const MAX_ATTEMPTS = 10;
+const TIME_LIMIT = 10 * 60; // 10 Minutes
+
+const QUIZ_SETS = {
+    1: {
+        name: "সেট ১", icon: "🎈", topic: "গ্যাসের প্রাথমিক ধারণা, বয়েলের সূত্র ও লেখচিত্র",
+        questions: [
+            { q: "১. স্থির উষ্ণতায় নির্দিষ্ট ভরের গ্যাসের চাপ ও আয়তনের গুণফল সর্বদা ধ্রুবক হয়- এটি কার সূত্র?", opts: ["চার্লসের সূত্র", "বয়েলের সূত্র", "অ্যাভোগাড্রো সূত্র", "গে-লুসাকের সূত্র"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বিজ্ঞানী রবার্ট বয়েল ১৬৬২ খ্রিস্টাব্দে এই সূত্রটি দেন। সূত্র অনুযায়ী, উষ্ণতা স্থির থাকলে নির্দিষ্ট ভরের গ্যাসের আয়তন তার চাপের সাথে ব্যস্তানুপাতে পরিবর্তিত হয়, অর্থাৎ PV = ধ্রুবক।" },
+            { q: "২. বয়েলের সূত্রে ধ্রুবক রাশি দুটি কী কী?", opts: ["গ্যাসের ভর ও গ্যাসের চাপ", "গ্যাসের আয়তন ও গ্যাসের উষ্ণতা", "গ্যাসের ভর ও গ্যাসের উষ্ণতা", "গ্যাসের চাপ ও গ্যাসের আয়তন"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্রটি কেবলমাত্র নির্দিষ্ট ভরের গ্যাসের জন্য এবং স্থির উষ্ণতায় প্রযোজ্য। তাই এখানে গ্যাসের ভর এবং গ্যাসের উষ্ণতা হলো ধ্রুবক রাশি।" },
+            { q: "৩. স্থির উষ্ণতায় নির্দিষ্ট ভরের গ্যাসের চাপ (P) বনাম আয়তন (V) লেখচিত্রের প্রকৃতি কীরূপ হয়?", opts: ["মূলবিন্দুগামী সরলরেখা", "সমপরাবৃত্তাকার", "P-অক্ষের সমান্তরাল সরলরেখা", "V-অক্ষের সমান্তরাল সরলরেখা"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্রানুযায়ী P ও V পরস্পরের ব্যস্তানুপাতিক। তাই স্থির উষ্ণতায় P-কে Y-অক্ষ এবং V-কে X-অক্ষ ধরে গ্রাফ আঁকলে একটি বক্ররেখা পাওয়া যায়, যাকে সমপরাবৃত্ত (Rectangular hyperbola) বা সমোষ্ণরেখা বলে।" },
+            { q: "৪. স্থির উষ্ণতায় নির্দিষ্ট ভরের গ্যাসের ক্ষেত্রে PV বনাম P লেখচিত্রটি কীরূপ হয়?", opts: ["সমপরাবৃত্তাকার", "মূলবিন্দুগামী সরলরেখা", "P-অক্ষের সমান্তরাল সরলরেখা", "PV-অক্ষের সমান্তরাল সরলরেখা"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্রানুযায়ী নির্দিষ্ট তাপমাত্রায় নির্দিষ্ট ভরের গ্যাসের ক্ষেত্রে চাপ (P)-এর মান যাই হোক না কেন, PV-এর মান সর্বদা ধ্রুবক থাকে। তাই লেখচিত্রটি P-অক্ষ বা অনুভূমিক অক্ষের সমান্তরাল সরলরেখা হয়।" },
+            { q: "৫. পুকুরের তলদেশ থেকে উৎপন্ন বুদবুদ যখন জলের ওপরের তলে আসে, তখন তার আয়তন বৃদ্ধি পায় কেন?", opts: ["ওপরের দিকে জলের উষ্ণতা বেশি বলে", "ওপরের দিকে জলের চাপ কম থাকে বলে", "জলের ওপরের তলে অক্সিজেন বেশি থাকে বলে", "বুদবুদের ভর বৃদ্ধি পায় বলে"], ans: 1, exp: "<b>ব্যাখ্যা:</b> পুকুরের তলদেশে জলের গভীরতা বেশি থাকায় সেখানে জলের চাপ বেশি হয়। বুদবুদটি যত ওপরে ওঠে, তার ওপর জলের চাপ তত কমতে থাকে এবং বয়েলের সূত্রানুযায়ী চাপ কমলে আয়তন বৃদ্ধি পায়।" },
+            { q: "৬. বেলুনে ফুঁ দিয়ে হাওয়া ভরলে বেলুনের আয়তন ও চাপ উভয়ই বৃদ্ধি পায়। এখানে বয়েলের সূত্র লঙ্ঘিত হয় না কেন?", opts: ["বেলুনের ভেতরে উষ্ণতা বেড়ে যায় বলে", "বেলুনের ভেতরে গ্যাসের ভর স্থির থাকে না বলে", "বেলুনটি স্থিতিস্থাপক বলে", "বেলুনের ভেতরের গ্যাস আদর্শ নয় বলে"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্র কেবলমাত্র নির্দিষ্ট ভরের গ্যাসের ক্ষেত্রে প্রযোজ্য। ফুঁ দিয়ে বেলুন ফোলানোর সময় বেলুনের ভেতরে অতিরিক্ত বাতাস বা গ্যাস প্রবেশ করে, ফলে গ্যাসের ভর পরিবর্তিত হয়। তাই এখানে বয়েলের সূত্র প্রযোজ্য নয়।" },
+            { q: "৭. কোনো আবদ্ধ পাত্রে গ্যাসের চাপ পরিমাপ করা হয় কোন যন্ত্রের সাহায্যে?", opts: ["থার্মোমিটার", "ব্যারোমিটার", "ম্যানোমিটার", "হাইগ্রোমিটার"], ans: 2, exp: "<b>ব্যাখ্যা:</b> কোনো বন্ধ পাত্রে রাখা গ্যাসের চাপ ম্যানোমিটার যন্ত্রের সাহায্যে মাপা হয়। অন্যদিকে উন্মুক্ত বায়ুমণ্ডলীয় চাপ মাপতে ব্যারোমিটার ব্যবহৃত হয়।" },
+            { q: "৮. চাপের SI একক কোনটি?", opts: ["ডাইন/বর্গসেমি", "পাস্কাল (Pa)", "অ্যাটমস্ফিয়ার (atm)", "টর (torr)"], ans: 1, exp: "<b>ব্যাখ্যা:</b> চাপ = প্রযুক্ত বল/ক্ষেত্রফল। SI পদ্ধতিতে বলের একক নিউটন এবং ক্ষেত্রফলের একক বর্গমিটার। তাই চাপের SI একক হলো নিউটন/বর্গমিটার বা পাস্কাল (Pa)।" },
+            { q: "৯. 1 অ্যাটমস্ফিয়ার (atm) চাপ সমান কত সেমি পারদস্তম্ভের চাপ?", opts: ["70 cm", "75 cm", "76 cm", "100 cm"], ans: 2, exp: "<b>ব্যাখ্যা:</b> সমুদ্রপৃষ্ঠে 45° অক্ষাংশে 0°C উষ্ণতায় প্রমাণ অভিকর্ষজ ত্বরণে 76 সেমি পারদস্তম্ভ যে চাপ প্রয়োগ করে, তাকে 1 অ্যাটমস্ফিয়ার বা প্রমাণ বায়ুমণ্ডলীয় চাপ বলে।" },
+            { q: "১০. স্থির উষ্ণতায় কোনো নির্দিষ্ট ভরের গ্যাসের আয়তন (V) বনাম 1/P লেখচিত্রটি কীরূপ হয়?", opts: ["সমপরাবৃত্তাকার", "মূলবিন্দুগামী সরলরেখা", "V-অক্ষের সমান্তরাল", "1/P-অক্ষের সমান্তরাল"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্র অনুযায়ী V ∝ 1/P। তাই 1/P-কে অনুভূমিক অক্ষ এবং V-কে উল্লম্ব অক্ষ ধরে গ্রাফ আঁকলে তা মূলবিন্দুগামী একটি সরলরেখা হবে।" },
+            { q: "১১. স্থির উষ্ণতায় নির্দিষ্ট ভরের কোনো গ্যাসের চাপ দ্বিগুণ করা হলে তার আয়তন কত হবে?", opts: ["দ্বিগুণ হবে", "চারগুণ হবে", "অর্ধেক হবে", "অপরিবর্তিত থাকবে"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্রানুযায়ী চাপ ও আয়তন ব্যস্তানুপাতিক। তাই উষ্ণতা স্থির রেখে চাপ 2P করা হলে আয়তন কমে প্রাথমিক আয়তনের অর্ধেক (V/2) হয়ে যাবে।" },
+            { q: "১২. গ্যাসের অণুগুলির পাত্রের দেয়ালে অবিরাম ধাক্কা দেওয়ার ফলে কীসের সৃষ্টি হয়?", opts: ["গ্যাসের আয়তন", "গ্যাসের ভর", "গ্যাসের চাপ", "গ্যাসের ঘনত্ব"], ans: 2, exp: "<b>ব্যাখ্যা:</b> গ্যাসের অণুগুলি সর্বদা গতিশীল। আবদ্ধ পাত্রে থাকার সময় তারা একে অপরের সাথে এবং পাত্রের দেয়ালের সাথে অনবরত সংঘর্ষ ঘটায়। পাত্রের দেয়ালে অণুগুলির এই আঘাতের ফলেই গ্যাসের চাপের সৃষ্টি হয়।" },
+            { q: "১৩. 1 টর (torr) সমান কত পাস্কাল (Pa)?", opts: ["1.013 Pa", "133.3 Pa", "760 Pa", "1000 Pa"], ans: 1, exp: "<b>ব্যাখ্যা:</b> গ্যাসের চাপ মাপার একটি ছোট একক হলো টর (torr)। 1 টর চাপ বলতে 1 মিলিমিটার পারদস্তম্ভের চাপকে বোঝায়, যা পাস্কাল এককে 133.3 Pa এর সমান।" },
+            { q: "১৪. গ্যাসের অণুগুলির মধ্যে আন্তরাণবিক আকর্ষণ বল অত্যন্ত কম হওয়ায় গ্যাস সর্বদা চারদিকে ছড়িয়ে পড়ার প্রবণতা দেখায়। গ্যাসের এই ধর্মকে কী বলে?", opts: ["স্থিতিস্থাপকতা", "প্রসারণশীলতা", "সংকোচনশীলতা", "সান্দ্রতা"], ans: 1, exp: "<b>ব্যাখ্যা:</b> গ্যাসের অণুগুলির মধ্যে ব্যবধান বেশি এবং আকর্ষণ বল খুব কম থাকে। তাই এদের নির্দিষ্ট আকার বা আয়তন থাকে না, এরা সর্বদা চারদিকে ছড়িয়ে পড়ে পাত্রের সম্পূর্ণ আয়তন দখল করে। একেই গ্যাসের প্রসারণশীলতা বলে।" },
+            { q: "১৫. CGS পদ্ধতিতে চাপের একক কী?", opts: ["পাস্কাল (Pa)", "নিউটন/বর্গমিটার", "ডাইন/বর্গসেমি", "জুল"], ans: 2, exp: "<b>ব্যাখ্যা:</b> CGS পদ্ধতিতে প্রযুক্ত বলের একক ডাইন (dyne) এবং ক্ষেত্রফলের একক বর্গসেমি (cm²)। তাই এই পদ্ধতিতে চাপের একক হলো ডাইন/বর্গসেমি (dyne/cm²)।" }
+        ]
+    },
+    2: {
+        name: "সেট ২", icon: "🌡️", topic: "চার্লসের সূত্র, পরম শূন্য উষ্ণতা এবং কেলভিন স্কেল",
+        questions: [
+            { q: "১. চার্লসের সূত্রে ধ্রুবক রাশি দুটি কী কী?", opts: ["গ্যাসের ভর ও গ্যাসের উষ্ণতা", "গ্যাসের চাপ ও গ্যাসের আয়তন", "গ্যাসের ভর ও গ্যাসের চাপ", "গ্যাসের চাপ ও গ্যাসের উষ্ণতা"], ans: 2, exp: "<b>ব্যাখ্যা:</b> চার্লসের সূত্রটি নির্দিষ্ট ভরের গ্যাসের জন্য এবং স্থির চাপে প্রযোজ্য। তাই এই সূত্রে গ্যাসের ভর এবং গ্যাসের চাপ হলো ধ্রুবক রাশি।" },
+            { q: "২. চার্লসের সূত্র অনুযায়ী, স্থির চাপে 1°C উষ্ণতা বৃদ্ধির জন্য কোনো গ্যাসের আয়তন 0°C উষ্ণতায় তার আয়তনের কত অংশ বৃদ্ধি পায়?", opts: ["1/100 অংশ", "1/273 অংশ", "1/373 অংশ", "273 গুণ"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বিজ্ঞানী চার্লসের মতে, নির্দিষ্ট চাপে প্রতি 1°C উষ্ণতা বৃদ্ধি বা হ্রাসের জন্য কোনো নির্দিষ্ট ভরের গ্যাসের আয়তন 0°C উষ্ণতায় ওই গ্যাসের যে আয়তন থাকে, তার 1/273 অংশ যথাক্রমে বৃদ্ধি বা হ্রাস পায়।" },
+            { q: "৩. পরম শূন্য উষ্ণতার মান সেলসিয়াস স্কেলে কত?", opts: ["0°C", "100°C", "-273°C", "-100°C"], ans: 2, exp: "<b>ব্যাখ্যা:</b> যে তাপমাত্রায় যেকোনো গ্যাসের আয়তন গাণিতিকভাবে শূন্য হয়ে যায়, তাকে পরম শূন্য উষ্ণতা বলে। সেলসিয়াস স্কেলে এই তাপমাত্রার মান হলো -273°C।" },
+            { q: "৪. সেলসিয়াস স্কেলে কোনো উষ্ণতার পাঠ t°C হলে পরম স্কেলে ওই উষ্ণতার পাঠ কত হবে?", opts: ["(t - 273) K", "(273 - t) K", "273t K", "(t + 273) K"], ans: 3, exp: "<b>ব্যাখ্যা:</b> সেলসিয়াস স্কেলের পাঠের সঙ্গে 273 যোগ করলে পরম স্কেলে বা কেলভিন স্কেলে ওই উষ্ণতার পাঠ পাওয়া যায়। যেমন, 20°C = (273+20)K = 293K।" },
+            { q: "৫. স্থির চাপে নির্দিষ্ট ভরের গ্যাসের আয়তন (V) বনাম পরম উষ্ণতা (T) লেখচিত্রটি কীরূপ হয়?", opts: ["সমপরাবৃত্ত", "T-অক্ষের সমান্তরাল", "মূলবিন্দুগামী সরলরেখা", "V-অক্ষের সমান্তরাল"], ans: 2, exp: "<b>ব্যাখ্যা:</b> কেলভিন স্কেল অনুসারে চার্লসের সূত্রটি হলো V ∝ T। অর্থাৎ, স্থির চাপে গ্যাসের আয়তন তার পরম উষ্ণতার সমানুপাতিক। তাই V বনাম T লেখচিত্রটি মূলবিন্দুগামী একটি সরলরেখা হয়।" },
+            { q: "৬. স্থির চাপে নির্দিষ্ট ভরের গ্যাসের আয়তন (V) বনাম সেলসিয়াস উষ্ণতা (t°C) লেখচিত্রটি পিছনের দিকে বর্ধিত করলে তা উষ্ণতা অক্ষকে কোন্ বিন্দুতে ছেদ করে?", opts: ["0°C বিন্দুতে", "100°C বিন্দুতে", "-273°C বিন্দুতে", "-100°C বিন্দুতে"], ans: 2, exp: "<b>ব্যাখ্যা:</b> চার্লসের সূত্র অনুযায়ী তাপমাত্রা কমাতে থাকলে -273°C এ গ্যাসের আয়তন গাণিতিকভাবে শূন্য হয়। তাই V বনাম t(°C) লেখচিত্রের সরলরেখাটিকে পশ্চাৎ দিকে বর্ধিত করলে তা X-অক্ষকে -273°C তাপমাত্রায় ছেদ করে।" },
+            { q: "৭. পরম শূন্য উষ্ণতায় আদর্শ গ্যাসের আয়তন তাত্ত্বিকভাবে কত হয়?", opts: ["অসীম", "দ্বিগুণ", "অর্ধেক", "শূন্য"], ans: 3, exp: "<b>ব্যাখ্যা:</b> চার্লসের সূত্র অনুযায়ী, তাপমাত্রা কমতে কমতে -273°C বা 0 K-এ পৌঁছালে গাণিতিকভাবে আদর্শ গ্যাসের আয়তন সম্পূর্ণ শূন্য হয়ে যায়।" },
+            { q: "৮. জলের হিমাঙ্ক কেলভিন স্কেলে কত?", opts: ["100 K", "273 K", "373 K", "0 K"], ans: 1, exp: "<b>ব্যাখ্যা:</b> সেলসিয়াস স্কেলে জলের হিমাঙ্ক হলো 0°C। কেলভিন স্কেলে এর মান হবে (0+273) K = 273 K।" },
+            { q: "৯. জলের স্ফুটনাঙ্ক কেলভিন স্কেলে কত?", opts: ["100 K", "273 K", "373 K", "0 K"], ans: 2, exp: "<b>ব্যাখ্যা:</b> সেলসিয়াস স্কেলে জলের স্ফুটনাঙ্ক হলো 100°C। কেলভিন স্কেলে এর মান হবে (100+273) K = 373 K।" },
+            { q: "১০. স্থির আয়তনে নির্দিষ্ট ভরের গ্যাসের চাপ তার পরম উষ্ণতার সমানুপাতিক (P ∝ T)- এটি কার সূত্র?", opts: ["বয়েলের সূত্র", "চার্লসের সূত্র", "গে-লুসাকের চাপের সূত্র", "অ্যাভোগাড্রো সূত্র"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বিজ্ঞানী গে-লুসাক আবিষ্কার করেন যে, আয়তন স্থির রাখলে নির্দিষ্ট ভরের যেকোনো গ্যাসের চাপ তার পরম উষ্ণতার সমানুপাতিক হয়। একেই গে-লুসাকের চাপের সূত্র বলা হয়।" },
+            { q: "১১. স্থির আয়তনে গ্যাসের চাপ গুণাঙ্কের মান কত?", opts: ["1/100", "1/273", "273", "1/373"], ans: 1, exp: "<b>ব্যাখ্যা:</b> স্থির আয়তনে 1°C উষ্ণতা বৃদ্ধির জন্য নির্দিষ্ট ভরের গ্যাসের চাপ 0°C উষ্ণতায় তার চাপের 1/273 অংশ বৃদ্ধি পায়। এই 1/273 ভগ্নাংশটিকেই স্থির আয়তনে গ্যাসের চাপ গুণাঙ্ক বলা হয়।" },
+            { q: "১২. কেলভিন স্কেল অনুসারে চার্লসের সূত্রের গাণিতিক রূপ কোনটি?", opts: ["PV = ধ্রুবক", "V/T = ধ্রুবক", "P/T = ধ্রুবক", "VT = ধ্রুবক"], ans: 1, exp: "<b>ব্যাখ্যা:</b> কেলভিন স্কেল অনুসারে স্থির চাপে নির্দিষ্ট ভরের গ্যাসের আয়তন তার পরম উষ্ণতার সমানুপাতিক (V ∝ T)। অর্থাৎ V/T সর্বদা ধ্রুবক থাকে (V1/T1 = V2/T2)।" },
+            { q: "১৩. স্থির চাপে নির্দিষ্ট ভরের কোনো গ্যাসের পরম উষ্ণতা দ্বিগুণ করা হলে গ্যাসটির আয়তন কত হবে?", opts: ["অর্ধেক হবে", "চারগুণ হবে", "দ্বিগুণ হবে", "একই থাকবে"], ans: 2, exp: "<b>ব্যাখ্যা:</b> চার্লসের সূত্রানুযায়ী V ∝ T। যেহেতু আয়তন পরম উষ্ণতার সাথে সমানুপাতিক, তাই পরম উষ্ণতা দ্বিগুণ করলে গ্যাসের আয়তনও দ্বিগুণ হবে।" },
+            { q: "১৪. বাস্তবে কোনো গ্যাসকে -273°C পর্যন্ত ঠান্ডা করা সম্ভব নয় কেন?", opts: ["গ্যাসটি বিস্ফোরিত হয় বলে", "এত নিম্ন উষ্ণতায় আসার আগেই সমস্ত গ্যাস তরল বা কঠিনে পরিণত হয় বলে", "গ্যাসের চাপ অসীম হয়ে যায় বলে", "গ্যাসের অণুগুলো ধ্বংস হয়ে যায় বলে"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বাস্তবে পরম শূন্য উষ্ণতায় পৌঁছানো অসম্ভব কারণ ওই তাপমাত্রায় যাওয়ার অনেক আগেই সমস্ত গ্যাস ঘনীভূত হয়ে তরল বা কঠিন পদার্থে পরিণত হয়ে যায়, আর তরল বা কঠিনের ক্ষেত্রে চার্লসের সূত্র প্রযোজ্য নয়।" },
+            { q: "১৫. চার্লসের সূত্রের V বনাম T লেখচিত্রের ক্ষেত্রে চাপ বৃদ্ধি করলে লেখচিত্রের নতি (Slope)-এর কী পরিবর্তন হয়?", opts: ["বৃদ্ধি পায়", "হ্রাস পায়", "অপরিবর্তিত থাকে", "শূন্য হয়ে যায়"], ans: 1, exp: "<b>ব্যাখ্যা:</b> চাপ বৃদ্ধির সাথে সাথে গ্যাসের আয়তন হ্রাস পায়। এই কারণে চাপ বৃদ্ধি করলে V-T লেখচিত্রের প্রকৃতি মূলবিন্দুগামী সরলরেখা থাকলেও এর ঢাল বা নতি হ্রাস পেয়ে নিচের দিকে হেলে যায়।" }
+        ]
+    },
+    3: {
+        name: "সেট ৩", icon: "⚗️", topic: "বয়েল ও চার্লসের সমন্বয়, আদর্শ গ্যাস সমীকরণ ও R-এর মান",
+        questions: [
+            { q: "১. বয়েল ও চার্লসের সূত্রের সমন্বয়কারী সাধারণ সমীকরণ কোনটি?", opts: ["P/T = ধ্রুবক", "V/T = ধ্রুবক", "PV/T = ধ্রুবক", "PT/V = ধ্রুবক"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বয়েলের সূত্র (V ∝ 1/P) এবং চার্লসের সূত্র (V ∝ T) সমন্বয় করলে পাওয়া যায় V ∝ T/P, অর্থাৎ PV/T = ধ্রুবক। এটিই বয়েল ও চার্লসের সূত্রের সমন্বিত রূপ।" },
+            { q: "২. 'n' মোল আদর্শ গ্যাসের ক্ষেত্রে অবস্থার সমীকরণটি কী?", opts: ["PV=RT", "PV=nRT", "P/V=nRT", "PT=nRV"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বয়েল, চার্লস এবং অ্যাভোগাড্রো সূত্রের সমন্বয়ে ১ মোল গ্যাসের জন্য আদর্শ গ্যাস সমীকরণ হলো PV=RT। সুতরাং, n মোল গ্যাসের ক্ষেত্রে সমীকরণটি হবে PV=nRT।" },
+            { q: "৩. আদর্শ গ্যাস সমীকরণে 'R'-কে কী বলা হয়?", opts: ["গ্যাসের চাপ ধ্রুবক", "গ্যাসের আয়তন ধ্রুবক", "সার্বজনীন গ্যাস ধ্রুবক", "প্ল্যাঙ্ক ধ্রুবক"], ans: 2, exp: "<b>ব্যাখ্যা:</b> সমীকরণে R-এর মান সমস্ত গ্যাসের ক্ষেত্রে সমান এবং এটি গ্যাসের ধর্ম বা প্রকৃতির ওপর নির্ভর করে না। তাই R-কে মোলার গ্যাস ধ্রুবক বা সার্বজনীন গ্যাস ধ্রুবক বলা হয়।" },
+            { q: "৪. লিটার-অ্যাটমস্ফিয়ার (L-atm) এককে R-এর মান কত?", opts: ["8.314", "0.082", "1.986", "22.4"], ans: 1, exp: "<b>ব্যাখ্যা:</b> STP-তে 1 মোল গ্যাসের চাপ 1 atm, তাপমাত্রা 273.16 K এবং আয়তন 22.4 L ধরলে, R=PV/T সমীকরণ থেকে R-এর মান পাওয়া যায় 0.082 L·atm/(mol·K)।" },
+            { q: "৫. SI পদ্ধতিতে (Joule এককে) সার্বজনীন গ্যাস ধ্রুবক R-এর মান কত?", opts: ["8.314 J/(mol·K)", "0.082 J/(mol·K)", "1.986 J/(mol·K)", "8.314 × 10^7 J/(mol·K)"], ans: 0, exp: "<b>ব্যাখ্যা:</b> আন্তর্জাতিক পদ্ধতি বা SI এককে চাপ পাস্কাল এবং আয়তন ঘনমিটারে মাপা হলে, সার্বজনীন গ্যাস ধ্রুবক R-এর মান হয় 8.314 J/(mol·K)।" },
+            { q: "৬. CGS পদ্ধতিতে (erg এককে) R-এর মান কত?", opts: ["8.314 erg/(mol·K)", "8.314 × 10^7 erg/(mol·K)", "0.082 erg/(mol·K)", "1.986 erg/(mol·K)"], ans: 1, exp: "<b>ব্যাখ্যা:</b> আমরা জানি 1 J = 10^7 আর্গ (erg)। তাই SI এককের মানকে 10^7 দিয়ে গুণ করলে CGS এককে R-এর মান পাওয়া যায়, যা হলো 8.314 × 10^7 erg/(mol·K)।" },
+            { q: "৭. ক্যালোরি (cal) এককে R-এর মান প্রায় কত?", opts: ["1.986 cal/(mol·K)", "4.2 cal/(mol·K)", "8.314 cal/(mol·K)", "0.082 cal/(mol·K)"], ans: 0, exp: "<b>ব্যাখ্যা:</b> তাপের যান্ত্রিক তুল্যাঙ্ক অনুযায়ী 1 ক্যালোরি = 4.2 জুল (প্রায়)। তাই 8.314 কে 4.2 দিয়ে ভাগ করলে ক্যালোরি এককে R-এর মান প্রায় 1.986 বা 2 cal/(mol·K) পাওয়া যায়।" },
+            { q: "৮. প্রমাণ চাপ ও তাপমাত্রায় (STP-তে) যেকোনো 1 মোল বা 1 গ্রাম-অণু গ্যাসের আয়তন কত?", opts: ["11.2 লিটার", "22.4 লিটার", "44.8 লিটার", "2.24 লিটার"], ans: 1, exp: "<b>ব্যাখ্যা:</b> অ্যাভোগাড্রো প্রকল্প অনুযায়ী, নির্দিষ্ট চাপ ও উষ্ণতায় সম-আয়তন গ্যাসে সমান সংখ্যক অণু থাকে এবং STP-তে 1 মোল যেকোনো বাস্তব বা আদর্শ গ্যাসের পরীক্ষালব্ধ আয়তন হয় 22.4 লিটার।" },
+            { q: "৯. \"একই তাপমাত্রায় ও একই চাপে সম-আয়তন সকল গ্যাসে সমান সংখ্যক অণু বর্তমান থাকে।\" এটি কার সূত্র?", opts: ["বয়েলের সূত্র", "চার্লসের সূত্র", "অ্যাভোগাড্রো সূত্র", "ডাল্টনের সূত্র"], ans: 2, exp: "<b>ব্যাখ্যা:</b> ইতালীয় বিজ্ঞানী অ্যামিদিও অ্যাভোগাড্রো অণু ও পরমাণুর মধ্যে পার্থক্য করে এই যুগান্তকারী সূত্রটি দেন। এর গাণিতিক রূপটি হলো V ∝ n (যখন P ও T স্থির)।" },
+            { q: "১০. আদর্শ গ্যাস সমীকরণ ব্যবহার করে গ্যাসের ঘনত্ব (d) নির্ণয়ের সূত্র কোনটি?", opts: ["d = PM/RT", "d = RT/PM", "d = P/MRT", "d = MRT/P"], ans: 0, exp: "<b>ব্যাখ্যা:</b> আদর্শ গ্যাস সমীকরণ PV = (W/M)RT। যেহেতু ঘনত্ব d=W/V, তাই সমীকরণটি সাজিয়ে লিখলে গ্যাসের ঘনত্বের সূত্র দাঁড়ায় d=PM/RT।" },
+            { q: "১১. কোনো গ্যাসের বাষ্পঘনত্ব (D) এবং তার আণবিক ভরের (M) মধ্যে সম্পর্ক কী?", opts: ["M=D/2", "M=D", "M=2D", "M=4D"], ans: 2, exp: "<b>ব্যাখ্যা:</b> অ্যাভোগাড্রোর সূত্র প্রয়োগ করে প্রমাণ করা যায় যে, যেকোনো গ্যাসের আণবিক ভর তার বাষ্পঘনত্বের ঠিক দ্বিগুণ হয়। অর্থাৎ, M=2D।" },
+            { q: "১২. শুষ্ক বায়ু অপেক্ষা আর্দ্র বায়ু লঘু বা হালকা হয় কেন?", opts: ["আর্দ্র বায়ুতে অক্সিজেন বেশি থাকে বলে", "জলীয় বাষ্পের বাষ্পঘনত্ব শুষ্ক বায়ুর বাষ্পঘনত্বের চেয়ে কম বলে", "জলীয় বাষ্পের বাষ্পঘনত্ব বেশি বলে", "আর্দ্র বায়ুতে নাইট্রোজেন কম থাকে বলে"], ans: 1, exp: "<b>ব্যাখ্যা:</b> শুষ্ক বায়ুর বাষ্পঘনত্ব প্রায় 14.4, কিন্তু জলীয় বাষ্পের বাষ্পঘনত্ব মাত্র 9। যেহেতু জলীয় বাষ্প শুষ্ক বায়ুর চেয়ে হালকা, তাই বাতাসে জলীয় বাষ্প মিশলে সম-আয়তনের আর্দ্র বায়ু শুষ্ক বায়ুর চেয়ে লঘু হয়ে যায়।" },
+            { q: "১৩. মাত্রিক বিশ্লেষণের সাহায্যে R-এর মাত্রা কী পাওয়া যায়?", opts: ["কার্য × উষ্ণতা", "শক্তি × মোল^-1 × উষ্ণতা^-1", "বল × ক্ষেত্রফল", "ভর × বেগ"], ans: 1, exp: "<b>ব্যাখ্যা:</b> R = PV/nT। চাপ × আয়তন আসলে কার্যের বা শক্তির মাত্রাকে নির্দেশ করে। তাই R-এর একক বা মাত্রা হলো শক্তির একক × mol^-1 × K^-1।" },
+            { q: "১৪. \"একই চাপ ও উষ্ণতায় গ্যাসীয় পদার্থের রাসায়নিক বিক্রিয়া তাদের আয়তনের সরল সংখ্যার অনুপাতে ঘটে।\" এটি কার সূত্র?", opts: ["বার্জেলিয়াসের প্রকল্প", "অ্যাভোগাড্রোর সূত্র", "গে-লুসাকের গ্যাস-আয়তন সূত্র", "বয়েলের সূত্র"], ans: 2, exp: "<b>ব্যাখ্যা:</b> বিজ্ঞানী গে-লুসাক বিক্রিয়ক ও বিক্রিয়াজাত গ্যাসীয় পদার্থের আয়তনের অনুপাত নিয়ে এই সূত্রটি দিয়েছিলেন, যা অ্যাভোগাড্রো সূত্রের সাহায্যে খুব সহজেই প্রমাণ করা যায়।" },
+            { q: "১৫. সার্বজনীন গ্যাস ধ্রুবক R-এর মান কোন বিষয়ের ওপর নির্ভর করে?", opts: ["গ্যাসের ভরের ওপর", "গ্যাসের প্রকৃতির ওপর", "গ্যাসের চাপের ওপর", "এটি কোনো গ্যাসের প্রকৃতির ওপর নির্ভর করে না"], ans: 3, exp: "<b>ব্যাখ্যা:</b> 1 মোল যেকোনো গ্যাসের ক্ষেত্রে R-এর মান সর্বদা একই থাকে। এটি গ্যাসের প্রকৃতি, উপাদান বা ভৌত অবস্থার ওপর নির্ভরশীল নয়, তাই একে 'সার্বজনীন' বলা হয়।" }
+        ]
+    },
+    4: {
+        name: "সেট ৪", icon: "💨", topic: "আদর্শ বনাম বাস্তব গ্যাস এবং গ্যাসের গতীয় তত্ত্ব",
+        questions: [
+            { q: "১. গ্যাসের গতীয় তত্ত্ব অনুযায়ী, গ্যাসের অণুগুলির মধ্যে আকর্ষণ বা বিকর্ষণ বলের মান কত?", opts: ["অত্যন্ত বেশি", "শূন্য বা নগণ্য", "পাত্রের আয়তনের সমান", "অসীম"], ans: 1, exp: "<b>ব্যাখ্যা:</b> গতীয় তত্বের স্বীকার্য অনুযায়ী, গ্যাসীয় অণুগুলির মধ্যে পারস্পরিক ব্যবধান অনেক বেশি থাকার কারণে এদের মধ্যে কোনো আকর্ষণ বা বিকর্ষণ বল থাকে না।" },
+            { q: "২. গ্যাসের গতীয় তত্ত্ব অনুযায়ী, নির্দিষ্ট উষ্ণতায় গ্যাসের অণুগুলির গড় গতিশক্তি কার সমানুপাতিক?", opts: ["গ্যাসের চাপের", "গ্যাসের আয়তনের", "গ্যাসের পরম উষ্ণতার", "গ্যাসের ভরের"], ans: 2, exp: "<b>ব্যাখ্যা:</b> গতীয় তত্ত্ব থেকে জানা যায়, গ্যাসের অণুগুলির গড় গতিশক্তি ওই গ্যাসের পরম উষ্ণতার (T) সমানুপাতিক (Ek ∝ T)। তাই তাপ বাড়ালে অণুগুলির গতিশক্তি বেড়ে যায়।" },
+            { q: "৩. গ্যাসের অণুগুলির নিজেদের মধ্যে এবং পাত্রের দেয়ালের সাথে ঘটা সংঘর্ষের প্রকৃতি কেমন?", opts: ["অস্থিতিস্থাপক", "স্থিতিস্থাপক", "আংশিক স্থিতিস্থাপক", "ঘর্ষণযুক্ত"], ans: 1, exp: "<b>ব্যাখ্যা:</b> গতীয় তত্ত্ব অনুযায়ী, গ্যাস অণুসমূহের নিজেদের মধ্যে এবং পাত্রের দেয়ালের সঙ্গে সংঘর্ষ সম্পূর্ণ স্থিতিস্থাপক (Elastic) হয়। এই কারণে ধাক্কাধাক্কির ফলেও অণুগুলির মোট গতিশক্তির কোনো হ্রাস বা ক্ষয় হয় না।" },
+            { q: "৪. পরম শূন্য উষ্ণতায় গ্যাসের অণুগুলির গতিবেগের কী অবস্থা হয়?", opts: ["অসীম হয়ে যায়", "শূন্য হয়ে যায়", "অপরিবর্তিত থাকে", "দ্বিগুণ হয়"], ans: 1, exp: "<b>ব্যাখ্যা:</b> যেহেতু গতিশক্তি পরম উষ্ণতার সমানুপাতিক (Ek ∝ T), তাই পরম শূন্য উষ্ণতায় (T=0 K) পৌঁছালে গ্যাসের অণুগুলির সমস্ত গতিশক্তি লোপ পায় এবং তাদের গতিবেগ গাণিতিকভাবে শূন্য হয়ে যায়।" },
+            { q: "৫. যে সমস্ত গ্যাস যেকোনো চাপ ও উষ্ণতায় PV=nRT সমীকরণ মেনে চলে, তাদের কী বলা হয়?", opts: ["বাস্তব গ্যাস", "আদর্শ গ্যাস", "বিরল গ্যাস", "নিষ্ক্রিয় গ্যাস"], ans: 1, exp: "<b>ব্যাখ্যা:</b> আদর্শ গ্যাস হলো সেই কাল্পনিক গ্যাস, যা সমস্ত চাপ ও তাপমাত্রার শর্তে বয়েল ও চার্লসের সূত্র এবং আদর্শ গ্যাস সমীকরণ (PV=nRT) নিখুঁতভাবে মেনে চলে।" },
+            { q: "৬. প্রকৃতিতে পাওয়া যায় এমন গ্যাসগুলি (যেমন অক্সিজেন, কার্বন ডাইঅক্সাইড) আসলে কী ধরনের গ্যাস?", opts: ["আদর্শ গ্যাস", "বাস্তব গ্যাস", "নিষ্ক্রিয় গ্যাস", "অতি-আদর্শ গ্যাস"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বাস্তবে কোনো গ্যাসই সব চাপ ও উষ্ণায় PV=nRT সমীকরণ সঠিকভাবে মেনে চলে না। আমাদের চারপাশের এই সাধারণ গ্যাসগুলোকেই বাস্তব গ্যাস (Real gas) বলা হয়।" },
+            { q: "৭. বাস্তব গ্যাসগুলির আদর্শ আচরণ থেকে বিচ্যুতির প্রধান কারণ কয়টি?", opts: ["একটি", "দুটি", "তিনটি", "চারটি"], ans: 1, exp: "<b>ব্যাখ্যা:</b> বিজ্ঞানী ভ্যান ডার ওয়ালস্ এই বিচ্যুতির দুটি মূল কারণ বের করেন- ১) সসীম আয়তন জনিত ত্রুটি (অণুগুলোর নিজস্ব আয়তন আছে) এবং ২) আন্তরাণবিক আকর্ষণ জনিত ত্রুটি (অণুগুলোর মধ্যে আকর্ষণ বল কাজ করে)।" },
+            { q: "৮. কোন্ শর্তে একটি বাস্তব গ্যাস প্রায় আদর্শ গ্যাসের মতো আচরণ করে?", opts: ["উচ্চ চাপ ও নিম্ন উষ্ণতায়", "উচ্চ চাপ ও উচ্চ উষ্ণতায়", "নিম্ন চাপ ও উচ্চ উষ্ণতায়", "নিম্ন চাপ ও নিম্ন উষ্ণতায়"], ans: 2, exp: "<b>ব্যাখ্যা:</b> চাপ খুব কমিয়ে দিলে এবং উষ্ণতা অনেক বাড়িয়ে দিলে গ্যাসের অণুগুলো একে অপরের থেকে অনেক দূরে সরে যায় এবং গতিশক্তি বেড়ে যায়। তখন তাদের নিজেদের আয়তন ও আকর্ষণ বল নগণ্য হয়ে যায়, ফলে তারা আদর্শ গ্যাসের মতো আচরণ করে।" },
+            { q: "৯. দুটি ভিন্ন গ্যাসকে একটি আবদ্ধ পাত্রে রাখলে তারা স্বতঃস্ফূর্তভাবে মিশে যায়। গ্যাসের এই ধর্মকে কী বলে?", opts: ["অভিস্রবণ", "ব্যাপন", "নিঃসরণ", "পৃষ্ঠটান"], ans: 1, exp: "<b>ব্যাখ্যা:</b> রাসায়নিক বিক্রিয়া করে না এমন দুই বা ততোধিক গ্যাস স্বতঃস্ফূর্তভাবে পরস্পরের সাথে মিশে সমসত্ব মিশ্রণ তৈরি করার ধর্মকেই গ্যাসের ব্যাপন (Diffusion) বলা হয়। এটি প্রমাণ করে যে গ্যাসের অণুগুলো সর্বদা গতিশীল।" },
+            { q: "১০. গ্যাসের গতীয় তত্বে আদর্শ গ্যাসের অণুগুলির মোট আয়তন সম্পর্কে কী কল্পনা করা হয়েছিল?", opts: ["এটি পাত্রের আয়তনের সমান", "এটি পাত্রের আয়তনের অর্ধেক", "পাত্রের মোট আয়তনের তুলনায় এটি নগণ্য", "এটি অসীম"], ans: 2, exp: "<b>ব্যাখ্যা:</b> গতীয় তত্ত্বে ধরে নেওয়া হয়েছিল যে অণুগুলো বিন্দুর মতো ছোট, তাই সমগ্র পাত্রের আয়তনের তুলনায় অণুগুলোর নিজেদের মোট আয়তন একদম নগণ্য। এটিই সসীম আয়তন জনিত ত্রুটির মূল কারণ।" },
+            { q: "১১. একটি আবদ্ধ পাত্রে উষ্ণতা স্থির রেখে গ্যাসের চাপ বৃদ্ধি করলে গ্যাসের আয়তনের কী পরিবর্তন হয়?", opts: ["আয়তন বৃদ্ধি পায়", "আয়তন হ্রাস পায়", "আয়তন অপরিবর্তিত থাকে", "আয়তন শূন্য হয়ে যায়"], ans: 1, exp: "<b>ব্যাখ্যা:</b> চাপ বৃদ্ধি করলে গ্যাসের অণুগুলি কাছাকাছি চলে আসে এবং তাদের দ্বারা অতিক্রান্ত পথের দূরত্ব হ্রাস পায়, ফলে পাত্রের ভেতরের গ্যাসের আয়তন হ্রাস পায় (বয়েলের সূত্র)।" },
+            { q: "১২. পাত্রের দেয়ালের সঙ্গে গ্যাস অণুগুলোর সংঘর্ষের সংখ্যা যত বাড়ে, গ্যাসের চাপের কী পরিবর্তন হয়?", opts: ["চাপ কমে যায়", "চাপ স্থির থাকে", "চাপ শূন্য হয়", "চাপ বৃদ্ধি পায়"], ans: 3, exp: "<b>ব্যাখ্যা:</b> গ্যাসের অণুগুলো পাত্রের দেয়ালে অবিরাম ধাক্কা মারার ফলেই চাপের সৃষ্টি হয়। তাই প্রতি সেকেন্ডে ধাক্কা বা সংঘর্ষের সংখ্যা যত বাড়ে, পাত্রের দেয়ালে প্রযুক্ত বল তত বাড়ে, ফলে গ্যাসের চাপও তত বৃদ্ধি পায়।" },
+            { q: "১৩. গ্যাসের অণুগুলির বেগ কত হতে পারে বলে গতীয় তত্ত্বে বলা হয়েছে?", opts: ["সর্বদা আলোর বেগের সমান", "শূন্য থেকে অসীম পর্যন্ত যেকোনো মান", "সর্বদা স্থির থাকে", "শব্দের বেগের সমান"], ans: 1, exp: "<b>ব্যাখ্যা:</b> গ্যাসের অণুগুলো সম্ভাব্য সব দিকে অতি দ্রুতগতিতে সরলরেখায় বিচরণ করে এবং ওদের বেগ শূন্য থেকে অসীম পর্যন্ত যেকোনো মানের হতে পারে বলে গতীয় তত্ত্বে স্বীকার করা হয়েছে।" },
+            { q: "১৪. অধিক চাপে বাস্তব গ্যাসের অণুগুলো খুব কাছাকাছি এলে তাদের মধ্যে কী কাজ করতে শুরু করে, যা আদর্শ গ্যাসে ধরে নেওয়া হয়নি?", opts: ["বিকর্ষণ বল", "আকর্ষণ বল", "মহাকর্ষ বল", "চৌম্বক বল"], ans: 1, exp: "<b>ব্যাখ্যা:</b> চাপ বাড়লে অণুগুলো খুব কাছাকাছি চলে আসে এবং তাদের মধ্যে আন্তরাণবিক আকর্ষণ বল ক্রিয়া করতে শুরু করে। এর ফলেই বাস্তব গ্যাস পাত্রের দেয়ালে আদর্শ গ্যাসের তুলনায় কম চাপ প্রয়োগ করে।" },
+            { q: "১৫. স্থির চাপে কোনো আদর্শ গ্যাসকে পরম শূন্য উষ্ণতায় ঠান্ডা করা হলে গাণিতিকভাবে তার আয়তন কী হবে?", opts: ["অসীম হবে", "দ্বিগুণ হবে", "শূন্য হবে", "ঋণাত্মক হবে"], ans: 2, exp: "<b>ব্যাখ্যা:</b> চার্লসের সূত্র এবং আদর্শ গ্যাসের সমীকরণ অনুযায়ী, পরম শূন্য উষ্ণতায় (T=0 K) পৌঁছালে যেকোনো আদর্শ গ্যাসের আয়তন গাণিতিকভাবে সম্পূর্ণ শূন্য (V=0) হয়ে যায়।" }
+        ]
+    }
+};
+
+let loggedInUser = null;
+let currentSetId = null;
+let questions = [];
+let score = 0;
+let wrongAnswers = 0;
+let userAnswers = {};
+let isReviewMode = false;
+let timerInterval;
+let timeLeft = TIME_LIMIT;
+
+window.onload = () => { buildHub(); };
+
+function buildHub() {
+    const grid = document.getElementById('setGrid');
+    grid.innerHTML = '';
+    let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+
+    for(let id in QUIZ_SETS) {
+        const set = QUIZ_SETS[id];
+        let attemptCount = 0;
+        let isLocked = false;
+
+        if(loggedInUser) {
+            attemptCount = userAttempts[loggedInUser + "_" + id] || 0;
+            isLocked = attemptCount >= MAX_ATTEMPTS;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'set-card';
+
+        let badge = '';
+        if(loggedInUser) {
+            badge = `<div class="attempt-badge ${isLocked ? 'locked' : ''} en-font">${isLocked ? 'সম্পূর্ণ' : attemptCount + '/' + MAX_ATTEMPTS}</div>`;
+        }
+
+        card.innerHTML = `
+            ${badge}
+            <div class="set-icon">${set.icon}</div>
+            <div class="set-name">${set.name}</div>
+            <div class="set-topic">${set.topic}</div>
+            <div class="set-meta-info en-font">
+                <span>${set.questions.length} Qs</span>
+                <span>10 Mins</span>
+            </div>
+        `;
+
+        card.onclick = () => { selectSet(id); };
+        grid.appendChild(card);
+    }
+}
+
+function selectSet(setId) {
+    if(loggedInUser) {
+        let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+        let attemptCount = userAttempts[loggedInUser + "_" + setId] || 0;
+        if(attemptCount >= MAX_ATTEMPTS) {
+            alert(`⚠️ আপনি এই সেটের সর্বোচ্চ ${MAX_ATTEMPTS} বার Test দিয়েছেন।`);
+            return;
+        }
+        startQuiz(setId);
+    } else {
+        currentSetId = setId;
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').classList.add('hidden');
+        document.getElementById('loginSetName').innerText = QUIZ_SETS[setId].name + ": " + QUIZ_SETS[setId].topic;
+        document.getElementById('loginModal').classList.remove('hidden');
+    }
+}
+
+function closeLogin() { document.getElementById('loginModal').classList.add('hidden'); }
+
+function doLogin() {
+    const u = document.getElementById('loginUsername').value.trim();
+    const p = document.getElementById('loginPassword').value.trim();
+    const err = document.getElementById('loginError');
+
+    const GLOBAL_USERS = JSON.parse(localStorage.getItem("testBazarGlobalUsers")) || {};
+
+    if(!u || !p) { err.innerText = "ইউজারনেম এবং পাসওয়ার্ড দিন!"; err.classList.remove('hidden'); return; }
+
+    if(GLOBAL_USERS[u] && GLOBAL_USERS[u] === p) {
+        loggedInUser = u;
+        document.getElementById('userDisplay').innerText = `👤 ${u}`;
+        closeLogin();
+        buildHub();
+        if(currentSetId) {
+            startQuiz(currentSetId);
+        }
+    } else {
+        err.innerText = "ইউজারনেম বা পাসওয়ার্ড ভুল!";
+        err.classList.remove('hidden');
+    }
+}
+
+function incrementAttempt(user, setId) {
+    let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+    let key = user + "_" + setId;
+    userAttempts[key] = (userAttempts[key] || 0) + 1;
+    localStorage.setItem(STORAGE_KEY_ATTEMPTS, JSON.stringify(userAttempts));
+}
+
+function startQuiz(setId) {
+    currentSetId = setId;
+    incrementAttempt(loggedInUser, setId);
+    questions = QUIZ_SETS[setId].questions;
+    userAnswers = {};
+    isReviewMode = false;
+    score = 0;
+    wrongAnswers = 0;
+    timeLeft = TIME_LIMIT;
+
+    document.getElementById('hubView').classList.add('hidden');
+    document.getElementById('resultModal').classList.add('hidden');
+    document.getElementById('quizView').classList.remove('hidden');
+
+    document.getElementById('timerBox').classList.remove('hidden');
+    document.getElementById('timerBox').classList.remove('danger');
+    document.getElementById('submitTestBtn').classList.remove('hidden');
+
+    document.getElementById('quizTitle').innerText = QUIZ_SETS[setId].name + " | " + QUIZ_SETS[setId].topic;
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 1000);
+
+    renderQuestions();
+}
+
+function tick() {
+    timeLeft--;
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    document.getElementById('timerDisplay').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    if (timeLeft <= 60) document.getElementById('timerBox').classList.add('danger');
+    if (timeLeft <= 0) { submitQuiz(); }
+}
+
+const LABELS = ['A', 'B', 'C', 'D'];
+
+function renderQuestions() {
+    const quizList = document.getElementById('quizList');
+    let html = '';
+
+    questions.forEach((q, i) => {
+        html += `<div class="q-block" id="qBlock_${i}">
+                    <div class="q-text">${q.q}</div>
+                    <div class="options-grid">`;
+
+        q.opts.forEach((opt, j) => {
+            html += `<div class="opt" id="opt_${i}_${j}" onclick="selectOpt(${i}, ${j})">
+                        <div class="opt-circle">${LABELS[j]}</div>
+                        <div class="opt-text">${opt}</div>
+                     </div>`;
+        });
+
+        html += `   </div>
+                    <div class="explanation hidden" id="exp_${i}">${q.exp}</div>
+                 </div>`;
+    });
+
+    quizList.innerHTML = html;
+    window.scrollTo(0, 0);
+}
+
+function selectOpt(qIdx, optIdx) {
+    if (isReviewMode) return;
+    userAnswers[qIdx] = optIdx;
+
+    const block = document.getElementById(`qBlock_${qIdx}`);
+    const opts = block.querySelectorAll('.opt');
+    opts.forEach(o => o.classList.remove('selected'));
+    document.getElementById(`opt_${qIdx}_${optIdx}`).classList.add('selected');
+}
+
+function submitQuiz() {
+    if (isReviewMode) return;
+
+    const answeredCount = Object.keys(userAnswers).length;
+    if (timeLeft > 0 && answeredCount < questions.length) {
+        const confirmSubmit = confirm(`আপনি মাত্র ${answeredCount} টি প্রশ্নের উত্তর দিয়েছেন। আপনি কি সত্যিই Test জমা দিতে চান?`);
+        if(!confirmSubmit) return;
+    }
+
+    isReviewMode = true;
+    clearInterval(timerInterval);
+    document.getElementById('timerBox').classList.add('hidden');
+    document.getElementById('submitTestBtn').classList.add('hidden');
+
+    score = 0;
+    wrongAnswers = 0;
+
+    questions.forEach((q, i) => {
+        const selected = userAnswers[i];
+        const block = document.getElementById(`qBlock_${i}`);
+        const opts = block.querySelectorAll('.opt');
+        opts.forEach(o => o.classList.remove('selected'));
+
+        if (selected !== undefined) {
+            if (selected === q.ans) {
+                score++;
+                document.getElementById(`opt_${i}_${selected}`).classList.add('correct');
+            } else {
+                wrongAnswers++;
+                document.getElementById(`opt_${i}_${selected}`).classList.add('wrong');
+                document.getElementById(`opt_${i}_${q.ans}`).classList.add('correct');
+            }
+        } else {
+            document.getElementById(`opt_${i}_${q.ans}`).classList.add('correct');
+        }
+
+        document.getElementById(`exp_${i}`).classList.remove('hidden');
+    });
+
+    const skipped = questions.length - (score + wrongAnswers);
+    const pct = Math.round((score / questions.length) * 100);
+
+    document.getElementById('finalScore').textContent = `${pct}%`;
+    document.getElementById('rbCorrect').textContent = score;
+    document.getElementById('rbWrong').textContent = wrongAnswers + skipped;
+
+    let icon = '💪', grade = 'চেষ্টা চালিয়ে যাও!';
+    if(pct >= 90) { icon = '🌟'; grade = 'অসাধারণ!'; }
+    else if(pct >= 70) { icon = '👍'; grade = 'খুব ভালো!'; }
+    else if(pct >= 50) { icon = '📚'; grade = 'ভালো চেষ্টা!'; }
+
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultGrade').textContent = grade;
+
+    let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+    let attemptCount = userAttempts[loggedInUser + "_" + currentSetId] || 0;
+    let remaining = MAX_ATTEMPTS - attemptCount;
+    document.getElementById('attemptInfo').innerText = `বাকি আছে ${remaining} বার Test দেওয়ার সুযোগ (সর্বোচ্চ ${MAX_ATTEMPTS} বার)`;
+
+    document.getElementById('resultModal').classList.remove('hidden');
+}
+
+function closeResultModal() {
+    document.getElementById('resultModal').classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+    closeResultModal();
+    let userAttempts = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTEMPTS)) || {};
+    let attemptCount = userAttempts[loggedInUser + "_" + currentSetId] || 0;
+
+    if(attemptCount >= MAX_ATTEMPTS) {
+        alert(`⚠️ আপনি এই সেটের সর্বোচ্চ ${MAX_ATTEMPTS} বার Test দিয়েছেন।`);
+        document.getElementById('quizView').classList.add('hidden');
+        document.getElementById('hubView').classList.remove('hidden');
+        buildHub();
+        return;
+    }
+    startQuiz(currentSetId);
+}
+</script>
+</body>
+</html>
+
+
